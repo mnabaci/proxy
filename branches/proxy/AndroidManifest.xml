@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.android.proxy"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <permission android:name="com.android.proxy.READ_WARN"/>
+    <permission android:name="com.android.proxy.WRITE_WARN"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <provider android:name="com.android.proxy.warn.WarnProvider"
+            android:authorities="com.android.proxy.warn"
+            android:writePermission="com.android.proxy.WRITE_WARN"
+            android:readPermission="com.android.proxy.READ_WARN"
+            android:exported="true"/>   
+    </application>
+
+    <uses-permission android:name="com.android.proxy.READ_WARN"/>
+    <uses-permission android:name="com.android.proxy.WRITE_WARN"/>
+
+<uses-sdk android:minSdkVersion="3"></uses-sdk>
+</manifest> 
