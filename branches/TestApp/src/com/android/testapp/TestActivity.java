@@ -1,10 +1,11 @@
 package com.android.testapp;
 
+import java.util.Calendar;
+
 import android.app.Activity;
-import android.content.ContentValues;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,19 +20,6 @@ public class TestActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-//        ContentValues values = new ContentValues();
-//        long time = System.currentTimeMillis();
-//        values.put("owner", "com.android.proxy");
-//        values.put("trigger", time);
-//        getContentResolver().insert(Uri.parse("content://com.android.proxy.warn/warns"), values);
-//        String[] projection = new String[]{"_id", "owner", "trigger"};
-//        Cursor c = getContentResolver().query(Uri.parse("content://com.android.proxy.warn/warns"), projection, null, null, null);
-//        if (c.getCount() > 0) {
-//            c.moveToFirst();
-//            Log.d(TAG, "count:" + c.getCount());
-//            Log.d(TAG, "owner:" + c.getString(1));
-//        }
-//        c.close();
         Button insertButton = (Button)findViewById(R.id.insert);
         Button viewButton = (Button)findViewById(R.id.view);
         if (insertButton != null) {
@@ -54,6 +42,23 @@ public class TestActivity extends Activity {
                 }
             });
         }
+    }
+    
+    private void testAlarm() {
+    	Intent intent = new Intent(TestActivity.this, TestReceiver.class);
+        PendingIntent sender = PendingIntent.getBroadcast(TestActivity.this, 0, intent, 0);
+
+        // We want the alarm to go off 30 seconds from now.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.SECOND, 10);
+
+        // Schedule the alarm!
+        AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+        
+        PendingIntent toCancel = PendingIntent.getBroadcast(TestActivity.this, 1, intent, 0);
+        am.cancel(toCancel);
     }
     
     private static final void LOGD(String text) {

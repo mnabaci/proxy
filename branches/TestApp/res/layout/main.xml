@@ -11,12 +11,12 @@
 	    />
 	<Button 
 	    android:id="@+id/insert"
-	    android:layout_width="match_parent"
+	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:text="@string/txt_btn_insert"/>
 	<Button 
 	    android:id="@+id/view"
-	    android:layout_width="match_parent"
+	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:text="@string/txt_btn_view"/>
     
