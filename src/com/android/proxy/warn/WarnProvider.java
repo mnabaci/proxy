@@ -83,9 +83,23 @@ public class WarnProvider extends ContentProvider {
         }
         
     }
+    
+    public static interface OnProviderChangeListner {
+    	public void onInsert(Uri uri);
+    	public void beforeDelete(Uri uri, String selection, String[] selectionArgs);
+    	public void onUpdate(Uri uri, String selection, String[] selectionArgs);
+    }
+    private OnProviderChangeListner mListener;
+    
+    public void setListner(OnProviderChangeListner listener) {
+    	mListener = listener;
+    }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+    	if (mListener != null) {
+    		mListener.beforeDelete(uri, selection, selectionArgs);
+    	}
         int count=0;
         switch (uriMatcher.match(uri)){
            case WARNS:
@@ -124,7 +138,10 @@ public class WarnProvider extends ContentProvider {
         if (rowID>0)
         {
             Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
-            getContext().getContentResolver().notifyChange(_uri,null); 
+            getContext().getContentResolver().notifyChange(_uri,null);
+            if (mListener != null) {
+            	mListener.onInsert(_uri);
+            }
             return _uri;
         }
 
@@ -137,6 +154,7 @@ public class WarnProvider extends ContentProvider {
         Context context = getContext();  
         DatabaseHelper dbHelper = new DatabaseHelper(context);  
         mWarnsDB = dbHelper.getWritableDatabase();  
+        setListner(WarnManager.sWarnObserver);
         return (mWarnsDB == null)? false:true;
     }
 
@@ -173,6 +191,9 @@ public class WarnProvider extends ContentProvider {
 
         } 
         getContext().getContentResolver().notifyChange(uri, null);
+        if (mListener != null) {
+        	mListener.onUpdate(uri, selection, selectionArgs);
+        }
         return count;
     }
     
