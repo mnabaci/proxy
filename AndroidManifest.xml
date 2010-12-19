@@ -13,6 +13,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".EditWarnActivity"
+                  android:label="@string/EditWarnActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.INSERT"/>
+                <action android:name="android.intent.action.EDIT"/>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".ViewWarnActivity"
+                  android:label="@string/ViewWarnActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
 
     </application>
     <uses-sdk android:minSdkVersion="3" />
