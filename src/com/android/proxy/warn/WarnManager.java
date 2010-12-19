@@ -10,6 +10,16 @@ public class WarnManager {
 	private static final String TAG = "WarnManager";
 	private static final boolean DEBUG = true;
 	
+	public static final int REPEAT_TYPE_NONE = 0;
+	public static final int REPEAT_TYPE_MILLISECOND = 1;
+	public static final int REPEAT_TYPE_DAY = 2;
+	public static final int REPEAT_TYPE_WEEK = 3;
+	public static final int REPEAT_TYPE_MONTH = 4;
+	public static final int REPEAT_TYPE_YEAR = 5;
+	
+	public static final int WARN_TYPE_DIALOG = 0;
+	public static final int WARN_TYPE_NOTIFY = 1;
+	
 	public static WarnObserver sWarnObserver = new WarnObserver();
 	
 	
