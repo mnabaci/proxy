@@ -2,4 +2,15 @@
 <resources>
     <string name="hello">Hello World, TestActivity!</string>
     <string name="app_name">TestApp</string>
+    
+    <string name="EditWarnActivity">EditWarn</string>
+    <string name="ViewWarnActivity">ViewWarn</string>
+    
+    <string name="txt_btn_insert">Insert</string>
+    <string name="txt_btn_view">View</string>
+    <string name="txt_btn_ok">确认</string>
+    <string name="txt_btn_cancel">取消</string>
+    
+    <string name="edit_interval_hint">interval time</string>
+    <string name="edit_message_hint">message</string>
 </resources>

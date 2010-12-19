@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="repeat_type">
+        <item>no</item>
+        <item>millisecond</item>
+        <item>day</item>
+        <item>week</item>
+        <item>month</item>
+        <item>year</item>
+    </string-array>
+    <string-array name="show_type">
+        <item>dialog</item>
+        <item>notify</item> 
+    </string-array>
+</resources>
