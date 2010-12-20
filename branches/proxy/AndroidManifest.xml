@@ -10,7 +10,8 @@
             android:authorities="com.android.proxy.warn"
             android:writePermission="com.android.proxy.WRITE_WARN"
             android:readPermission="com.android.proxy.READ_WARN"
-            android:exported="true"/>   
+            android:exported="true"/>
+        <receiver android:name="com.android.proxy.warn.WarnReceiver"/>   
     </application>
 
     <uses-permission android:name="com.android.proxy.READ_WARN"/>

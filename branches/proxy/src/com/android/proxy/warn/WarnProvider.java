@@ -154,7 +154,7 @@ public class WarnProvider extends ContentProvider {
         Context context = getContext();  
         DatabaseHelper dbHelper = new DatabaseHelper(context);  
         mWarnsDB = dbHelper.getWritableDatabase();  
-        setListner(WarnManager.sWarnObserver);
+        setListner(WarnManager.getInstance(getContext()).warnObserver);
         return (mWarnsDB == null)? false:true;
     }
 
