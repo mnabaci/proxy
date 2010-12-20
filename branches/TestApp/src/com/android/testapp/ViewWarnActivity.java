@@ -1,7 +1,5 @@
 package com.android.testapp;
 
-import java.util.Vector;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -19,7 +16,7 @@ public class ViewWarnActivity extends ListActivity {
 	
 	
     private WarnAdapter mWarnAdapter;
-    private String[] projection = {"_id", "owner", "trigger", "message"};
+    private String[] projection = {"_id", "owner", "trigger", "message", "vibrate"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +38,8 @@ public class ViewWarnActivity extends ListActivity {
 		public void bindView(View view, Context context, Cursor cursor) {
 			// TODO Auto-generated method stub
 			TextView textView = (TextView)view;
-			textView.setText(cursor.getInt(0) + ":" + cursor.getString(3));
+			textView.setText(cursor.getInt(0) + ":" + cursor.getString(3) 
+					+ "&" + Boolean.valueOf(cursor.getString(4)));
 		}
 
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
