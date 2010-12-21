@@ -3,6 +3,7 @@ package com.android.proxy.warn;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
 import android.util.Log;
 
 public class WarnReceiver extends BroadcastReceiver {
@@ -13,8 +14,14 @@ public class WarnReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
-		Warn warn = intent.getParcelableExtra(WarnManager.INTENT_EXTRA_NAME);
-		LOGD("onReceive," + warn.getID());
+	    final byte[] data = intent.getByteArrayExtra(WarnManager.INTENT_EXTRA_WARN);
+	    if (data != null) {
+            Parcel in = Parcel.obtain();
+            in.unmarshall(data, 0, data.length);
+            in.setDataPosition(0);
+            Warn warn = Warn.CREATOR.createFromParcel(in);
+            LOGD("onReceive," + warn.getID());
+        }
 	}
 	
 	private static void LOGD(String text) {

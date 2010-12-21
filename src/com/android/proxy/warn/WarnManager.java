@@ -1,7 +1,5 @@
 package com.android.proxy.warn;
 
-import java.security.acl.Owner;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.Log;
 
 import com.android.proxy.warn.WarnProvider.OnProviderChangeListner;
@@ -49,7 +48,7 @@ public class WarnManager {
 	private static final int INTENT_DATA_COLUMN = 12;
 	private static final int CHECKED_COLUMN = 13;
 	
-	public static final String INTENT_EXTRA_NAME = "com.android.proxy.Warn.warn";
+	public static final String INTENT_EXTRA_WARN = "warn";
 	
 	public WarnObserver warnObserver = null;
 	
@@ -74,11 +73,14 @@ public class WarnManager {
 			cursor.moveToFirst();
 			AlarmManager alarm = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
 			do {
+			    Intent intent = new Intent(mContext, WarnReceiver.class);
 				Warn warn = obtainWarnFromCursor(cursor);
-				Intent intent = new Intent(mContext, WarnReceiver.class);
-				intent.putExtra(INTENT_EXTRA_NAME, warn);
+				Parcel out = Parcel.obtain();
+				warn.writeToParcel(out, 0);
+				out.setDataPosition(0);
+				intent.putExtra(INTENT_EXTRA_WARN, out.marshall());
 				PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 
-						warn.getID(), intent, 0);
+						warn.getID(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
 				alarm.cancel(pendingIntent);
 				alarm.set(AlarmManager.RTC_WAKEUP, warn.getTriggerTime(), pendingIntent);
 			} while (cursor.moveToNext());
