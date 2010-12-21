@@ -1,5 +1,7 @@
 package com.android.proxy.warn;
 
+import java.util.Calendar;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,7 +11,7 @@ public class Warn implements Parcelable {
 	private String mOwner;
 	private long mTriggerTime;
 	private int mRepeatType;
-	private int mRepeatInterval;
+	private long mRepeatInterval;
 	private long mFinishTime;
 	private String mMessage;
 	private boolean mVibrate;
@@ -56,11 +58,11 @@ public class Warn implements Parcelable {
 		this.mRepeatType = repeatType;
 	}
 
-	public int getRepeatInterval() {
+	public long getRepeatInterval() {
 		return mRepeatInterval;
 	}
 
-	public void setRepeatInterval(int repeatInterval) {
+	public void setRepeatInterval(long repeatInterval) {
 		this.mRepeatInterval = repeatInterval;
 	}
 
@@ -135,6 +137,27 @@ public class Warn implements Parcelable {
 	public void setChecked(boolean checked) {
 		this.mChecked = checked;
 	}
+	
+	public boolean isOutOfDate() {
+		return mRepeatType == WarnManager.REPEAT_TYPE_NONE ? (System.currentTimeMillis() > mTriggerTime) : 
+			(mFinishTime > mTriggerTime && System.currentTimeMillis() > mFinishTime);
+	}
+	
+//	public long getNextAlarmTime() {
+//		long interval = mRepeatInterval;
+//		switch (mRepeatType) {
+//		case WarnManager.REPEAT_TYPE_NONE:
+//			return mTriggerTime;
+//		case WarnManager.REPEAT_TYPE_DAY:
+//			interval = mRepeatInterval*24*3600*1000;
+//			break;
+//		case WarnManager.REPEAT_TYPE_WEEK:
+//			interval = mRepeatInterval*7*24*3600*1000;
+//		case WarnManager.REPEAT_TYPE_MONTH:
+//			Calendar calendar = Calendar.getInstance();
+//			calendar.setTimeInMillis(mTriggerTime);
+//		}
+//	}
 
 	public int describeContents() {
 		// TODO Auto-generated method stub
@@ -147,7 +170,7 @@ public class Warn implements Parcelable {
 		dest.writeString(mOwner);
 		dest.writeLong(mTriggerTime);
 		dest.writeInt(mRepeatType);
-		dest.writeInt(mRepeatInterval);
+		dest.writeLong(mRepeatInterval);
 		dest.writeLong(mFinishTime);
 		dest.writeString(mMessage);
 		dest.writeString(Boolean.toString(mVibrate));
@@ -174,7 +197,7 @@ public class Warn implements Parcelable {
         mOwner = in.readString();
         mTriggerTime = in.readLong();
         mRepeatType = in.readInt();
-        mRepeatInterval = in.readInt();
+        mRepeatInterval = in.readLong();
         mFinishTime = in.readLong();
         mMessage = in.readString();
         mVibrate = Boolean.valueOf(in.readString());
