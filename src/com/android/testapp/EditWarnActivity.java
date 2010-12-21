@@ -64,6 +64,19 @@ public class EditWarnActivity extends Activity {
                     calendar.setTimeInMillis(cursor.getLong(2));
                     mTriggerDatePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 
                             calendar.get(Calendar.DAY_OF_MONTH), null);
+                    mTriggerTimePicker.setIs24HourView(false);
+                    mTriggerTimePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+                    mTriggerTimePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+                    mRepeatTypeSpinner.setSelection(cursor.getInt(3));
+                    mRepeatIntervalEdit.setText(String.valueOf(cursor.getInt(4)));
+                    calendar.setTimeInMillis(cursor.getLong(5));
+                    mFinishDatePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 
+                    		calendar.get(Calendar.DAY_OF_MONTH), null);
+                    mFinishTimePicker.setIs24HourView(false);
+                    mFinishTimePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+                    mFinishTimePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+                    mMessageEdit.setText(cursor.getString(6));
+                    mShowTypeSpinner.setSelection(cursor.getInt(9));
                 }
                 cursor.close();
             }
@@ -72,11 +85,7 @@ public class EditWarnActivity extends Activity {
         mCommitButton.setOnClickListener(new View.OnClickListener() {
             
             public void onClick(View v) {
-                if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
-                    insertRecord();
-                } else if (getIntent().getAction().equals(Intent.ACTION_EDIT)) {
-                    updateRecord();
-                }
+                insertRecord();
                 finish();
             }
         });
@@ -108,12 +117,12 @@ public class EditWarnActivity extends Activity {
         values.put("intent_action", Intent.ACTION_VIEW);
         values.put("intent_data", "smsto:");
         values.put("checked", false);
-        getContentResolver().insert(Uri.parse("content://com.android.proxy.warn/warns"), values);
-    }
-    
-    private void updateRecord() {
-        if (mWarnID != -1) {
-            
+        Uri uri = Uri.parse("content://com.android.proxy.warn/warns");
+        if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
+        	getContentResolver().insert(uri, values);
+        } else if (getIntent().getAction().equals(Intent.ACTION_EDIT)) {
+        	Uri queryUri = ContentUris.withAppendedId(uri, mWarnID);
+        	getContentResolver().update(queryUri, values, null, null);
         }
     }
 
