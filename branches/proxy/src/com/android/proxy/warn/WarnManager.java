@@ -1,7 +1,10 @@
 package com.android.proxy.warn;
 
+import java.util.Vector;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -33,6 +36,7 @@ public class WarnManager {
 		WarnProvider.MESSAGE, WarnProvider.VIBRATE, WarnProvider.SOUND, WarnProvider.SHOW_TYPE,
 		WarnProvider.INTENT_TARGET, WarnProvider.INTENT_ACTION, WarnProvider.INTENT_DATA,
 		WarnProvider.CHECKED};
+	private static String[] projection_id = {WarnProvider._ID};
 	private static final int ID_COLUMN = 0;
 	private static final int OWNER_COLUMN = 1;
 	private static final int TRIGGER_TIME_COLUMN = 2;
@@ -81,8 +85,11 @@ public class WarnManager {
 				intent.putExtra(INTENT_EXTRA_WARN, out.marshall());
 				PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 
 						warn.getID(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
-				alarm.cancel(pendingIntent);
-				alarm.set(AlarmManager.RTC_WAKEUP, warn.getTriggerTime(), pendingIntent);
+				if (add) {
+					alarm.set(AlarmManager.RTC_WAKEUP, warn.getTriggerTime(), pendingIntent);
+				} else {
+					alarm.cancel(pendingIntent);
+				}
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
@@ -94,7 +101,7 @@ public class WarnManager {
 		warn.setOwner(cursor.getString(OWNER_COLUMN));
 		warn.setTriggerTime(cursor.getLong(TRIGGER_TIME_COLUMN));
 		warn.setRepeatType(cursor.getInt(REPEAT_TYPE_COLUMN));
-		warn.setRepeatInterval(cursor.getInt(REPEAT_INTERVAL_TIME_COLUMN));
+		warn.setRepeatInterval(cursor.getLong(REPEAT_INTERVAL_TIME_COLUMN));
 		warn.setFinishTime(cursor.getLong(FINISH_TIME_COLUMN));
 		warn.setMessage(cursor.getString(MESSAGE_COLUMN));
 		warn.setVibrate(Boolean.valueOf(cursor.getString(VIBRATE_COLUMN)));
@@ -107,16 +114,24 @@ public class WarnManager {
 		return warn;
 	}
 	
+	public void deleteWarnFromDB(int warnID) {
+		Uri uri = ContentUris.withAppendedId(WarnProvider.CONTENT_URI, warnID);
+		mContext.getContentResolver().delete(uri, null, null);
+	}
+	
 	public class WarnObserver implements OnProviderChangeListner {
+		
+		private Vector<Integer> mUpdateIDVector;
 
 		public WarnObserver() {
-			
+			mUpdateIDVector = new Vector<Integer>();
 		}
 		
 		public void beforeDelete(Uri uri, String selection,
 				String[] selectionArgs) {
 			// TODO Auto-generated method stub
 			LOGD("beforeDelete");
+			handleWarns(uri, selection, selectionArgs, false);
 		}
 
 		public void onInsert(Uri uri) {
@@ -124,9 +139,29 @@ public class WarnManager {
 			handleWarns(uri, null, null, true);
 		}
 
-		public void onUpdate(Uri uri, String selection, String[] selectionArgs) {
+		public void afterUpdate() {
 			// TODO Auto-generated method stub
-			LOGD("onUpdate");
+			LOGD("afterUpdate");
+			for (int i = 0; i < mUpdateIDVector.size(); i++) {
+				Uri uri = ContentUris.withAppendedId(WarnProvider.CONTENT_URI, mUpdateIDVector.get(i));
+				handleWarns(uri, null, null, true);
+			}
+		}
+
+		public void beforeUpdate(Uri uri, String selection,
+				String[] selectionArgs) {
+			// TODO Auto-generated method stub
+			LOGD("beforeUpdate");
+			handleWarns(uri, selection, selectionArgs, false);
+			Cursor cursor = mContext.getContentResolver().query(uri, projection_id, selection, selectionArgs, null);
+			if (cursor.getCount() > 0) {
+				mUpdateIDVector.clear();
+				cursor.moveToFirst();
+				do {
+					mUpdateIDVector.add(cursor.getInt(0));
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
 		}
 		
 	}

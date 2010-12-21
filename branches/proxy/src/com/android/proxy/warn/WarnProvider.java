@@ -55,7 +55,7 @@ public class WarnProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_CREATE = "create table " + DATABASE_TABLE + " (" + _ID 
                                   + " integer primary key autoincrement, " + OWNER + " text, " + TRIGGER_TIME 
-                                  + " long, " + REPEAT_TYPE + " integer, " + REPEAT_INTERVAL_TIME + " integer, "
+                                  + " long, " + REPEAT_TYPE + " integer, " + REPEAT_INTERVAL_TIME + " long, "
                                   + FINISH_TIME + " long, " + MESSAGE + " text, " + VIBRATE + " boolean, "
                                   + SOUND + " boolean, " + SHOW_TYPE + " integer, " + INTENT_TARGET + " text, "
                                   + INTENT_ACTION + " text, " + INTENT_DATA + " text, " + CHECKED + " boolean);";
@@ -87,7 +87,8 @@ public class WarnProvider extends ContentProvider {
     public static interface OnProviderChangeListner {
     	public void onInsert(Uri uri);
     	public void beforeDelete(Uri uri, String selection, String[] selectionArgs);
-    	public void onUpdate(Uri uri, String selection, String[] selectionArgs);
+    	public void beforeUpdate(Uri uri, String selection, String[] selectionArgs);
+    	public void afterUpdate();
     }
     private OnProviderChangeListner mListener;
     
@@ -177,6 +178,9 @@ public class WarnProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
             String[] selectionArgs) {
+    	if (mListener != null) {
+    		mListener.beforeUpdate(uri, selection, selectionArgs);
+    	}
         int count = 0;
         switch (uriMatcher.match(uri)){
            case WARNS:
@@ -192,7 +196,7 @@ public class WarnProvider extends ContentProvider {
         } 
         getContext().getContentResolver().notifyChange(uri, null);
         if (mListener != null) {
-        	mListener.onUpdate(uri, selection, selectionArgs);
+        	mListener.afterUpdate();
         }
         return count;
     }
