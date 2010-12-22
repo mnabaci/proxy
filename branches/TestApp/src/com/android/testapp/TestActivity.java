@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+@SuppressWarnings("unused")
 public class TestActivity extends Activity {
     /** Called when the activity is first created. */
     
@@ -59,6 +60,16 @@ public class TestActivity extends Activity {
         
         PendingIntent toCancel = PendingIntent.getBroadcast(TestActivity.this, 1, intent, 0);
         am.cancel(toCancel);
+    }
+
+    private void testCalendar() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 31);
+        LOGD("before modify:" + calendar.toString());
+        calendar.add(Calendar.MONTH, 1);
+        LOGD("after modify:"  + calendar.toString());
     }
     
     private static final void LOGD(String text) {
