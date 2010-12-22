@@ -1,7 +1,5 @@
 package com.android.testapp;
 
-import java.io.UTFDataFormatException;
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -12,6 +10,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -20,6 +19,9 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 
 public class EditWarnActivity extends Activity {
+    
+    private static final String TAG = "EditWarnActivity";
+    private static final boolean DEBUG = true;
     
     public static final String WARN_ID = "warn_id";
     
@@ -68,7 +70,7 @@ public class EditWarnActivity extends Activity {
                     mTriggerTimePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
                     mTriggerTimePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
                     mRepeatTypeSpinner.setSelection(cursor.getInt(3));
-                    mRepeatIntervalEdit.setText(String.valueOf(cursor.getInt(4)));
+                    mRepeatIntervalEdit.setText(String.valueOf(cursor.getLong(4)));
                     calendar.setTimeInMillis(cursor.getLong(5));
                     mFinishDatePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 
                     		calendar.get(Calendar.DAY_OF_MONTH), null);
@@ -105,7 +107,7 @@ public class EditWarnActivity extends Activity {
                 mTriggerTimePicker.getCurrentMinute(), 0);
         values.put("trigger", calendar.getTime().getTime());
         values.put("repeat", mRepeatTypeSpinner.getSelectedItemPosition());
-        values.put("interval", Integer.parseInt(mRepeatIntervalEdit.getText().toString()));
+        values.put("interval", Long.parseLong(mRepeatIntervalEdit.getText().toString()));
         calendar.set(mFinishDatePicker.getYear(), mFinishDatePicker.getMonth(), mFinishDatePicker.getDayOfMonth(), 
                 mFinishTimePicker.getCurrentHour(), mFinishTimePicker.getCurrentMinute(), 0);
         values.put("finish", calendar.getTime().getTime());
@@ -118,11 +120,20 @@ public class EditWarnActivity extends Activity {
         values.put("intent_data", "smsto:");
         values.put("checked", false);
         Uri uri = Uri.parse("content://com.android.proxy.warn/warns");
+        long before = System.currentTimeMillis();
         if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
         	getContentResolver().insert(uri, values);
         } else if (getIntent().getAction().equals(Intent.ACTION_EDIT)) {
         	Uri queryUri = ContentUris.withAppendedId(uri, mWarnID);
         	getContentResolver().update(queryUri, values, null, null);
+        }
+        long after = System.currentTimeMillis();
+        LOGD("insert cost:" + (after-before));
+    }
+    
+    private static void LOGD(String text) {
+        if (DEBUG) {
+            Log.d(TAG, text);
         }
     }
 

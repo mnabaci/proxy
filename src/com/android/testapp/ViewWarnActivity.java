@@ -32,8 +32,11 @@ public class ViewWarnActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
+        long before = System.currentTimeMillis();
         Cursor cursor = managedQuery(Uri.parse("content://com.android.proxy.warn/warns"), 
     			projection, "owner = '" + getPackageName() + "'", null, null);
+        long after = System.currentTimeMillis();
+        LOGD("query cost:" + (after-before));
         mWarnAdapter = new WarnAdapter(getApplicationContext(), cursor);
         setContentView(R.layout.view);
         getListView().setAdapter(mWarnAdapter);
