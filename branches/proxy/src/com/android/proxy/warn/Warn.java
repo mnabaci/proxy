@@ -143,21 +143,57 @@ public class Warn implements Parcelable {
 			(mFinishTime > mTriggerTime && System.currentTimeMillis() > mFinishTime);
 	}
 	
-//	public long getNextAlarmTime() {
-//		long interval = mRepeatInterval;
-//		switch (mRepeatType) {
-//		case WarnManager.REPEAT_TYPE_NONE:
-//			return mTriggerTime;
-//		case WarnManager.REPEAT_TYPE_DAY:
-//			interval = mRepeatInterval*24*3600*1000;
-//			break;
-//		case WarnManager.REPEAT_TYPE_WEEK:
-//			interval = mRepeatInterval*7*24*3600*1000;
-//		case WarnManager.REPEAT_TYPE_MONTH:
-//			Calendar calendar = Calendar.getInstance();
-//			calendar.setTimeInMillis(mTriggerTime);
-//		}
-//	}
+	public long getNextAlarmTime() {
+		long now = System.currentTimeMillis();
+		if (now < mTriggerTime) {
+		    return mTriggerTime;
+		}
+		Calendar triggerCalendar;
+		Calendar nowCalendar;
+		long interval = mRepeatInterval;
+		switch (mRepeatType) {
+		case WarnManager.REPEAT_TYPE_NONE:
+			return mTriggerTime;
+		case WarnManager.REPEAT_TYPE_DAY:
+			interval = mRepeatInterval*24*3600*1000;
+			long dayInterval = (now - mTriggerTime)/interval;
+			return mTriggerTime + (dayInterval+1)*interval;
+		case WarnManager.REPEAT_TYPE_WEEK:
+			interval = mRepeatInterval*7*24*3600*1000;
+			long weekInterval = (now - mTriggerTime)/interval;
+			return mTriggerTime + (weekInterval+1)*interval;
+		case WarnManager.REPEAT_TYPE_MONTH:
+			triggerCalendar = Calendar.getInstance();
+			triggerCalendar.setTimeInMillis(mTriggerTime);
+			nowCalendar = Calendar.getInstance();
+			nowCalendar.setTimeInMillis(now);
+			int monthDistance =  nowCalendar.get(Calendar.MONTH) - triggerCalendar.get(Calendar.MONTH)
+			                    +(nowCalendar.get(Calendar.YEAR) - triggerCalendar.get(Calendar.YEAR))*12;
+			int monthInterval = monthDistance/(int)interval;
+			triggerCalendar.add(Calendar.MONTH, monthInterval*(int)interval);
+			if (triggerCalendar.before(nowCalendar)) {
+			    triggerCalendar.add(Calendar.MONTH, (int)interval);
+			} else {
+			    triggerCalendar.add(Calendar.MONTH, 0-(int)interval);
+			}
+			return triggerCalendar.getTimeInMillis();
+		case WarnManager.REPEAT_TYPE_YEAR:
+		    triggerCalendar = Calendar.getInstance();
+            triggerCalendar.setTimeInMillis(mTriggerTime);
+            nowCalendar = Calendar.getInstance();
+            nowCalendar.setTimeInMillis(now);
+            int yearDistance = nowCalendar.get(Calendar.YEAR) - triggerCalendar.get(Calendar.YEAR);
+            int yearInterval = yearDistance/(int)interval;
+            triggerCalendar.add(Calendar.YEAR, yearInterval*(int)interval);
+            if (triggerCalendar.before(nowCalendar)) {
+                triggerCalendar.add(Calendar.YEAR, (int)interval);
+            } else {
+                triggerCalendar.add(Calendar.YEAR, 0-(int)interval);
+            }
+            return triggerCalendar.getTimeInMillis();
+		}
+		return mTriggerTime;
+	}
 
 	public int describeContents() {
 		// TODO Auto-generated method stub
