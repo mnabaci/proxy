@@ -16,6 +16,7 @@
 
     <uses-permission android:name="com.android.proxy.READ_WARN"/>
     <uses-permission android:name="com.android.proxy.WRITE_WARN"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
 <uses-sdk android:minSdkVersion="3"></uses-sdk>
 </manifest> 
