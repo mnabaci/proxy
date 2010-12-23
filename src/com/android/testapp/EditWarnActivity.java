@@ -115,8 +115,8 @@ public class EditWarnActivity extends Activity {
         values.put("vibrate", false);
         values.put("sound", false);
         values.put("show_type", mShowTypeSpinner.getSelectedItemPosition());
-        values.put("intent_target", "com.android.mms/.ui.ConversationList");
-        values.put("intent_action", Intent.ACTION_VIEW);
+//        values.put("intent_target", "com.android.mms/.ui.ConversationList");
+        values.put("intent_action", Intent.ACTION_SENDTO);
         values.put("intent_data", "smsto:");
         values.put("checked", false);
         Uri uri = Uri.parse("content://com.android.proxy.warn/warns");
