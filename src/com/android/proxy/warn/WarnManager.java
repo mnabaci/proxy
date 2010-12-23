@@ -5,6 +5,7 @@ import java.util.Vector;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -77,8 +78,12 @@ public class WarnManager {
 			cursor.moveToFirst();
 			AlarmManager alarm = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
 			do {
-			    Intent intent = new Intent(mContext, WarnReceiver.class);
 				Warn warn = obtainWarnFromCursor(cursor);
+				if (add && !warn.isForever() 
+						&& warn.getNextAlarmTime() < System.currentTimeMillis()) {
+					continue;
+				}
+			    Intent intent = new Intent(mContext, WarnReceiver.class);
 				Parcel out = Parcel.obtain();
 				warn.writeToParcel(out, 0);
 				out.setDataPosition(0);
@@ -86,7 +91,7 @@ public class WarnManager {
 				PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 
 						warn.getID(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
 				if (add) {
-					alarm.set(AlarmManager.RTC_WAKEUP, warn.getTriggerTime(), pendingIntent);
+					alarm.set(AlarmManager.RTC_WAKEUP, warn.getNextAlarmTime(), pendingIntent);
 				} else {
 					alarm.cancel(pendingIntent);
 				}
@@ -117,6 +122,13 @@ public class WarnManager {
 	public void deleteWarnFromDB(int warnID) {
 		Uri uri = ContentUris.withAppendedId(WarnProvider.CONTENT_URI, warnID);
 		mContext.getContentResolver().delete(uri, null, null);
+	}
+	
+	public void setCheckState(int warnID, boolean checked) {
+		Uri uri = ContentUris.withAppendedId(WarnProvider.CONTENT_URI, warnID);
+		ContentValues values = new ContentValues();
+		values.put(WarnProvider.CHECKED, checked);
+		mContext.getContentResolver().update(uri, values, null, null);
 	}
 	
 	public class WarnObserver implements OnProviderChangeListner {

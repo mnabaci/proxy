@@ -178,7 +178,7 @@ public class WarnProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
             String[] selectionArgs) {
-    	if (mListener != null) {
+    	if (mListener != null && !(values.size() == 1 && values.containsKey(CHECKED))) {
     		mListener.beforeUpdate(uri, selection, selectionArgs);
     	}
         int count = 0;
@@ -195,7 +195,7 @@ public class WarnProvider extends ContentProvider {
 
         } 
         getContext().getContentResolver().notifyChange(uri, null);
-        if (mListener != null) {
+        if (mListener != null && !(values.size() == 1 && values.containsKey(CHECKED))) {
         	mListener.afterUpdate();
         }
         return count;

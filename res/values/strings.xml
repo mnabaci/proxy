@@ -2,4 +2,8 @@
 <resources>
     <string name="hello">Hello World!</string>
     <string name="app_name">Proxy</string>
+    
+    <string name="warn_dialog_title">提醒</string>
+    <string name="button_check">查看</string>
+    <string name="button_close">关闭</string>
 </resources>

@@ -143,6 +143,12 @@ public class Warn implements Parcelable {
 			(mFinishTime > mTriggerTime && System.currentTimeMillis() > mFinishTime);
 	}
 	
+	public boolean isForever () {
+		return mRepeatType != WarnManager.REPEAT_TYPE_NONE && mRepeatInterval > 0 && 
+				mFinishTime <= mTriggerTime;
+	}
+	
+	//calculate next alarm time from now, don't consider finish time
 	public long getNextAlarmTime() {
 		long now = System.currentTimeMillis();
 		if (now < mTriggerTime) {
