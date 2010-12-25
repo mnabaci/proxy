@@ -24,7 +24,7 @@ public class ViewWarnActivity extends ListActivity {
 	private static final boolean DEBUG = true;
 	
     private WarnAdapter mWarnAdapter;
-    private String[] projection = {"_id", "owner", "trigger", "message", "vibrate"};
+    private String[] projection = {"_id", "owner", "trigger", "message", "vibrate", "sound"};
     private static final int CT_MENU_EDIT = 1;
     private static final int CT_MENU_DELETE = 2;
 
@@ -53,7 +53,8 @@ public class ViewWarnActivity extends ListActivity {
 			// TODO Auto-generated method stub
 			TextView textView = (TextView)view;
 			textView.setText(cursor.getInt(0) + ":" + cursor.getString(3) 
-					+ "&" + Boolean.valueOf(cursor.getString(4)));
+					+ "&" + "vibrate:" + (cursor.getInt(4) > 0) 
+					+ "&sound:" + (cursor.getInt(5) > 0));
 			textView.setTag(cursor.getInt(0));
 		}
 
