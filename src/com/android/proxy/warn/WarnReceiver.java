@@ -1,8 +1,9 @@
 package com.android.proxy.warn;
 
-import com.android.proxy.R;
-
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,8 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.util.Log;
 import android.view.WindowManager;
+
+import com.android.proxy.R;
 
 public class WarnReceiver extends BroadcastReceiver {
 	
@@ -30,10 +33,16 @@ public class WarnReceiver extends BroadcastReceiver {
             in.unmarshall(data, 0, data.length);
             in.setDataPosition(0);
             mWarn = Warn.CREATOR.createFromParcel(in);
-            if (mWarn.getShowType() == WarnManager.WARN_TYPE_DIALOG) {
+            if (mWarn.getShowType() == WarnManager.SHOW_TYPE_DIALOG) {
             	launchWarnDialog(mWarn);
-            } else if (mWarn.getShowType() == WarnManager.WARN_TYPE_NOTIFY) {
+            } else if (mWarn.getShowType() == WarnManager.SHOW_TYPE_NOTIFY) {
             	notifyWarn(mWarn);
+            }
+            
+            launchAlertService();
+            
+            if (mWarn.getRepeatType() != WarnManager.REPEAT_TYPE_NONE) {
+                invokeNextAlarm(mWarn);
             }
             LOGD("onReceive," + mWarn.getID());
         }
@@ -61,6 +70,7 @@ public class WarnReceiver extends BroadcastReceiver {
 				}
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				mContext.startActivity(intent);
+				stopAlertService();
 				mDialog.dismiss();
 			}
 		});
@@ -72,6 +82,7 @@ public class WarnReceiver extends BroadcastReceiver {
 				if (mWarn.getRepeatType() != WarnManager.REPEAT_TYPE_NONE) {
 					WarnManager.getInstance(mContext).setCheckState(mWarn.getID(), false);
 				}
+				stopAlertService();
 				mDialog.dismiss();
 			}
 		});
@@ -86,11 +97,45 @@ public class WarnReceiver extends BroadcastReceiver {
 	}
 	
 	private void notifyWarn(Warn warn) {
-		
+	    Intent intent = new Intent();
+        if (warn.getIntentAction() != null) {
+            intent.setAction(warn.getIntentAction());
+        }
+        if (warn.getIntentTarget() != null) {
+            intent.setClassName(mContext, warn.getIntentTarget());
+        }
+        if (warn.getIntentData() != null) {
+            intent.setData(Uri.parse(warn.getIntentData()));
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingNotify = PendingIntent.getActivity(mContext, warn.getID(), intent, 0);
+		Notification n = new Notification(R.drawable.icon, warn.getMessage(), System.currentTimeMillis());
+		n.setLatestEventInfo(mContext, "Warn", warn.getMessage(), pendingNotify);
+		n.flags |= Notification.FLAG_SHOW_LIGHTS 
+		        | Notification.FLAG_ONLY_ALERT_ONCE
+		        | Notification.FLAG_AUTO_CANCEL;
+		n.defaults |= Notification.DEFAULT_LIGHTS;
+		NotificationManager nm = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+		nm.cancel(warn.getID());
+		nm.notify(warn.getID(), n);
 	}
 	
-	private void invokeNextAlarm() {
-		
+	private void invokeNextAlarm(Warn warn) {
+		WarnManager.getInstance(mContext).invokeNextWarn(warn);
+	}
+	
+	private void launchAlertService() {
+	    Intent intent = new Intent(WarnKlaxon.ACTION);
+        intent.putExtra(WarnProvider.SOUND, mWarn.isSound());
+        intent.putExtra(WarnProvider.VIBRATE, mWarn.isVibrate());
+        intent.putExtra(WarnProvider.SHOW_TYPE, mWarn.getShowType());
+        LOGD("sound:" + mWarn.isSound() + ",vibrate:" + mWarn.isVibrate() + ",showType:" + mWarn.getShowType());
+        mContext.startService(intent);
+	}
+	
+	private void stopAlertService() {
+	    Intent intent = new Intent(WarnKlaxon.ACTION);
+	    mContext.stopService(intent);
 	}
 	
 	private static void LOGD(String text) {
