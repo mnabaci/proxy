@@ -143,6 +143,10 @@ public class Warn implements Parcelable {
 			(mFinishTime > mTriggerTime && System.currentTimeMillis() > mFinishTime);
 	}
 	
+	public boolean isRepeated() {
+	    return mRepeatType != WarnManager.REPEAT_TYPE_NONE;
+	}
+	
 	public boolean isForever () {
 		return mRepeatType != WarnManager.REPEAT_TYPE_NONE && mRepeatInterval > 0 && 
 				mFinishTime <= mTriggerTime;
@@ -160,6 +164,9 @@ public class Warn implements Parcelable {
 		switch (mRepeatType) {
 		case WarnManager.REPEAT_TYPE_NONE:
 			return mTriggerTime;
+		case WarnManager.REPEAT_TYPE_MILLISECOND:
+		    long milisecondInterval = (now - mTriggerTime)/interval;
+		    return mTriggerTime + (milisecondInterval + 1) * interval;
 		case WarnManager.REPEAT_TYPE_DAY:
 			interval = mRepeatInterval*24*3600*1000;
 			long dayInterval = (now - mTriggerTime)/interval;

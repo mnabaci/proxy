@@ -11,12 +11,20 @@
             android:writePermission="com.android.proxy.WRITE_WARN"
             android:readPermission="com.android.proxy.READ_WARN"
             android:exported="true"/>
+        <service android:name="com.android.proxy.warn.WarnKlaxon">
+            <intent-filter>
+                <action android:name="com.android.warn.ALARM_ALERT" />
+            </intent-filter>
+        </service>
         <receiver android:name="com.android.proxy.warn.WarnReceiver"/>   
     </application>
 
     <uses-permission android:name="com.android.proxy.READ_WARN"/>
     <uses-permission android:name="com.android.proxy.WRITE_WARN"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
 <uses-sdk android:minSdkVersion="3"></uses-sdk>
 </manifest> 

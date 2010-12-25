@@ -28,8 +28,8 @@ public class WarnManager {
 	public static final int REPEAT_TYPE_MONTH = 4;
 	public static final int REPEAT_TYPE_YEAR = 5;
 	
-	public static final int WARN_TYPE_DIALOG = 0;
-	public static final int WARN_TYPE_NOTIFY = 1;
+	public static final int SHOW_TYPE_DIALOG = 0;
+	public static final int SHOW_TYPE_NOTIFY = 1;
 	
 	private static WarnManager sWarnManager = null;
 	private static String[] projection = {WarnProvider._ID, WarnProvider.OWNER, WarnProvider.TRIGGER_TIME, 
@@ -100,6 +100,20 @@ public class WarnManager {
 		cursor.close();
 	}
 	
+	public void invokeNextWarn(Warn warn) {
+	    if(warn != null && !warn.isOutOfDate()) {
+	        Intent intent = new Intent(mContext, WarnReceiver.class);
+            Parcel out = Parcel.obtain();
+            warn.writeToParcel(out, 0);
+            out.setDataPosition(0);
+            intent.putExtra(INTENT_EXTRA_WARN, out.marshall());
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 
+                    warn.getID(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarm = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
+            alarm.set(AlarmManager.RTC_WAKEUP, warn.getNextAlarmTime(), pendingIntent);
+	    }
+	}
+	
 	public static Warn obtainWarnFromCursor(Cursor cursor) {
 		Warn warn = new Warn();
 		warn.setID(cursor.getInt(ID_COLUMN));
@@ -109,8 +123,8 @@ public class WarnManager {
 		warn.setRepeatInterval(cursor.getLong(REPEAT_INTERVAL_TIME_COLUMN));
 		warn.setFinishTime(cursor.getLong(FINISH_TIME_COLUMN));
 		warn.setMessage(cursor.getString(MESSAGE_COLUMN));
-		warn.setVibrate(Boolean.valueOf(cursor.getString(VIBRATE_COLUMN)));
-		warn.setSound(Boolean.valueOf(cursor.getString(SOUND_COLUMN)));
+		warn.setVibrate(cursor.getInt(VIBRATE_COLUMN) > 0);
+		warn.setSound(cursor.getInt(SOUND_COLUMN) > 0);
 		warn.setShowType(cursor.getInt(SHOW_TYPE_COLUMN));
 		warn.setIntentTarget(cursor.getString(INTENT_TARGET_COLUMN));
 		warn.setIntentAction(cursor.getString(INTENT_ACTION_COLUMN));
