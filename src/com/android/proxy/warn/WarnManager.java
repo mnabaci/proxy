@@ -114,6 +114,19 @@ public class WarnManager {
 	    }
 	}
 	
+	public void initWarns() {
+		Cursor c = mContext.getContentResolver().query(WarnProvider.CONTENT_URI, 
+				projection, null, null, null);
+		if (c.getCount() > 0) {
+			c.moveToFirst();
+			do {
+				Warn warn = obtainWarnFromCursor(c);
+				invokeNextWarn(warn);
+			} while (c.moveToNext());
+		}
+		c.close();
+	}
+	
 	public static Warn obtainWarnFromCursor(Cursor cursor) {
 		Warn warn = new Warn();
 		warn.setID(cursor.getInt(ID_COLUMN));
