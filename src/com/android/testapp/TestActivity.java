@@ -2,11 +2,17 @@ package com.android.testapp;
 
 import java.util.Calendar;
 
+import com.android.proxy.IProxyService;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,12 +23,32 @@ public class TestActivity extends Activity {
     
     private static final String TAG = "TestActivity";
     private static final boolean DEBUG = true;
+    
+    private IProxyService mService = null;
+    
+    private ServiceConnection mConnection = new ServiceConnection() {
+        
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            LOGD("onServiceDisconnected");
+            mService = null;
+        }
+        
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            LOGD("onServiceConnected");
+            mService = IProxyService.Stub.asInterface(service);
+        }
+    };
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Button insertButton = (Button)findViewById(R.id.insert);
         Button viewButton = (Button)findViewById(R.id.view);
+        Button bindButton = (Button)findViewById(R.id.bind);
+        Button unbindButton = (Button)findViewById(R.id.unbind);
         if (insertButton != null) {
             insertButton.setOnClickListener(new View.OnClickListener() {
                 
@@ -40,6 +66,26 @@ public class TestActivity extends Activity {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setClass(getApplicationContext(), ViewWarnActivity.class);
                     startActivity(intent);
+                }
+            });
+        }
+        if (bindButton != null) {
+            bindButton.setOnClickListener(new View.OnClickListener() {
+                
+                public void onClick(View v) {
+                    // TODO Auto-generated method stub
+                    bindService(new Intent(IProxyService.class.getName()), mConnection, Context.BIND_AUTO_CREATE);
+                }
+            });
+        }
+        if (unbindButton != null) {
+            unbindButton.setOnClickListener(new View.OnClickListener() {
+                
+                public void onClick(View v) {
+                    // TODO Auto-generated method stub
+                    if (mService != null) {
+                        unbindService(mConnection);
+                    }
                 }
             });
         }

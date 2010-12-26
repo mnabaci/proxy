@@ -19,5 +19,15 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:text="@string/txt_btn_view"/>
+	<Button
+	    android:id="@+id/bind"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/txt_btn_bind"/>
+	<Button
+	    android:id="@+id/unbind"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/txt_btn_unbind"/>
     
 </LinearLayout>
