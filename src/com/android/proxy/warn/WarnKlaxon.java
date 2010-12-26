@@ -32,7 +32,7 @@ public class WarnKlaxon extends Service {
     private static final String TAG = "WarnKlaxon";
     private static final boolean DEBUG = true;
     
-    public static final String ACTION = "com.android.warn.ALARM_ALERT";
+    public static final String ACTION = "com.android.proxy.warn.ALARM_ALERT";
     
     private static final int ALARM_TIMEOUT_SECONDS = 10;
     private static final int NOTIFY_TIMEOUT_SECONDS = 3;

@@ -13,7 +13,13 @@
             android:exported="true"/>
         <service android:name="com.android.proxy.warn.WarnKlaxon">
             <intent-filter>
-                <action android:name="com.android.warn.ALARM_ALERT" />
+                <action android:name="com.android.proxy.warn.ALARM_ALERT" />
+            </intent-filter>
+        </service>
+        <service android:name="ProxyService">
+            <intent-filter>
+                <action android:name="com.android.proxy.PROXY_SERVICE"/>
+                <action android:name="com.android.proxy.IProxyService"/>
             </intent-filter>
         </service>
         <receiver android:name="com.android.proxy.warn.WarnReceiver"/>   
