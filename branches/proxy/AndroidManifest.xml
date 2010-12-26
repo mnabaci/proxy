@@ -23,6 +23,11 @@
             </intent-filter>
         </service>
         <receiver android:name="com.android.proxy.warn.WarnReceiver"/>   
+        <receiver android:name="com.android.proxy.warn.WarnInitReceiver">
+        	<intent-filter>
+        		<action android:name="android.intent.action.BOOT_COMPLETED"/>
+        	</intent-filter>
+        </receiver>
     </application>
 
     <uses-permission android:name="com.android.proxy.READ_WARN"/>
@@ -31,6 +36,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
 <uses-sdk android:minSdkVersion="3"></uses-sdk>
 </manifest> 
