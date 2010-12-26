@@ -10,7 +10,7 @@ LOCAL_PACKAGE_NAME := TestApp
 # can not be platform
 LOCAL_CERTIFICATE := shared
 
-# specify the jni lib, only for android with version greater than 1.5. not for OMS
+LOCAL_STATIC_JAVA_LIBRARIES := com.android.proxy.proxyservice
 
 include $(BUILD_PACKAGE)
 
