@@ -11,6 +11,12 @@
             android:writePermission="com.android.proxy.WRITE_WARN"
             android:readPermission="com.android.proxy.READ_WARN"
             android:exported="true"/>
+        <provider android:name="com.android.proxy.cache.RequestProvider"
+            android:authorities="com.android.proxy.cache"
+            android:exported="false"/>
+        <provider android:name="com.android.proxy.cache.ResponseProvider"
+            android:authorities="com.android.proxy.cache"
+            android:exported="false"/>
         <service android:name="com.android.proxy.warn.WarnKlaxon">
             <intent-filter>
                 <action android:name="com.android.proxy.warn.ALARM_ALERT" />
