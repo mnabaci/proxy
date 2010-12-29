@@ -20,7 +20,7 @@ public class ResponseProvider extends ContentProvider {
 	private static final String TAG = "ResponseProvider";
     private static final boolean DEBUG = true;
     
-    public static final String PROVIDER_NAME = "com.android.proxy.cache";
+    public static final String PROVIDER_NAME = "com.android.proxy.cache.response";
     
     public static final Uri CONTENT_URI = Uri.parse("content://" + PROVIDER_NAME + "/responses");
     

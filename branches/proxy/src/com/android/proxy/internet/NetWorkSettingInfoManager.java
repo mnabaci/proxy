@@ -32,11 +32,6 @@ import android.net.NetworkInfo;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.sohu.inputmethod.settings.SettingManager;
-import com.sohu.inputmethod.settings.SettingManager.EncryptUtil;
-import com.sohu.inputmethod.sogou.Environment;
-import com.sohu.inputmethod.sogou.R;
-
 public class NetWorkSettingInfoManager {
     private static final String TAG = "NetWorkSettingInfo";
     private static final boolean DEBUG = false;
@@ -258,6 +253,7 @@ public class NetWorkSettingInfoManager {
 
     private NetWorkSettingInfoManager(Context context) {
         mContext = context;
+        mBaseURL = null;
 //        mBaseURL = context.getString(R.string.sogou_base_url);
     }
 

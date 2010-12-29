@@ -1,8 +1,22 @@
 package com.android.proxy;
 
+import com.android.proxy.cache.RequestProvider;
+import com.android.proxy.cache.ResponseProvider;
+import com.android.proxy.utils.Environment;
+import com.android.proxy.warn.WarnProvider;
+
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageStats;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.IPackageStatsObserver;
+import android.database.ContentObserver;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
@@ -11,6 +25,12 @@ public class ProxyService extends Service {
 
     private static final String TAG = "ProxyService";
     private final static boolean DEBUG = true;
+    
+    private Environment mEnvironment;
+    private Config mConfig;
+    private DataSpaceObserver mSpaceObserver;
+    private PackageManager mPm;
+    private PkgSizeObserver mSizeObserver;
     
     private final IProxyService.Stub mBinder = new IProxyService.Stub() {
         
@@ -33,12 +53,21 @@ public class ProxyService extends Service {
         // TODO Auto-generated method stub
         super.onCreate();
         LOGD("onCreate");
+        mEnvironment = Environment.getInstance(getApplicationContext());
+        mConfig = Config.getInstance();
+        mSpaceObserver = new DataSpaceObserver(new Handler());
+        getContentResolver().registerContentObserver(WarnProvider.CONTENT_URI, true, mSpaceObserver);
+        getContentResolver().registerContentObserver(RequestProvider.CONTENT_URI, true, mSpaceObserver);
+        getContentResolver().registerContentObserver(ResponseProvider.CONTENT_URI, true, mSpaceObserver);
+        mPm = getPackageManager();
+        mSizeObserver = new PkgSizeObserver();
     }
 
     @Override
     public void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
+        getContentResolver().unregisterContentObserver(mSpaceObserver);
         LOGD("onDestroy");
     }
 
@@ -60,6 +89,25 @@ public class ProxyService extends Service {
         // TODO Auto-generated method stub
         LOGD("onUnbind");
         return super.onUnbind(intent);
+    }
+    
+    class PkgSizeObserver extends IPackageStatsObserver.Stub {
+        public void onGetStatsCompleted(PackageStats pStats, boolean succeeded) {
+             LOGD("space:" + pStats.dataSize);
+         }
+     }
+    
+    public class DataSpaceObserver extends ContentObserver {
+
+		public DataSpaceObserver(Handler handler) {
+			super(handler);
+			// TODO Auto-generated constructor stub
+		}
+    	
+		public void onChange(boolean selfChange) {
+			LOGD("onChange");
+			mPm.getPackageSizeInfo(getPackageName(), mSizeObserver);
+		}
     }
     
     private static void LOGD(String text) {

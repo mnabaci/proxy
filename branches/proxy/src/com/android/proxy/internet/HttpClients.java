@@ -108,7 +108,7 @@ public class HttpClients {
     
     public HttpResponse openConnection(String uploadData) {
         mHc = new DefaultHttpClient(NetWorkSettingInfoManager.getInstance(mContext).getParams());
-        NetWorkSettingInfoManager.getInstance(mContext).setHeader(mPost, uploadData);
+//        NetWorkSettingInfoManager.getInstance(mContext).setHeader(mPost, uploadData);
         try {
             mResponse = mHc.execute(mPost);
         } catch (ClientProtocolException e) {
