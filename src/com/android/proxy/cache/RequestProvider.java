@@ -20,7 +20,7 @@ public class RequestProvider extends ContentProvider {
 	private static final String TAG = "RequestProvider";
     private static final boolean DEBUG = true;
     
-    public static final String PROVIDER_NAME = "com.android.proxy.cache";
+    public static final String PROVIDER_NAME = "com.android.proxy.cache.request";
     
     public static final Uri CONTENT_URI = Uri.parse("content://" + PROVIDER_NAME + "/requests");
     
