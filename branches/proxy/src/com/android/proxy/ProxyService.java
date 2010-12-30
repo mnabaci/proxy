@@ -5,7 +5,11 @@ import com.android.proxy.cache.ResponseProvider;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.warn.WarnProvider;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +17,7 @@ import android.content.pm.PackageStats;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.IPackageStatsObserver;
 import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -25,6 +30,8 @@ public class ProxyService extends Service {
 
     private static final String TAG = "ProxyService";
     private final static boolean DEBUG = true;
+    
+    private static final int LARGE_SPACE_NOTIFICATION_ID = -1;
     
     private Environment mEnvironment;
     private Config mConfig;
@@ -91,9 +98,27 @@ public class ProxyService extends Service {
         return super.onUnbind(intent);
     }
     
+    private void notifyLargeSpace() {
+        LOGD("notifyLargeSpace");
+        PendingIntent pendingNotify = PendingIntent.getActivity(getApplicationContext(), 0, null, 0);
+        Notification n = new Notification(R.drawable.icon, getString(R.string.large_space_tip), System.currentTimeMillis());
+        n.setLatestEventInfo(getApplicationContext(), getString(R.string.large_space_tip_title), 
+                getString(R.string.large_space_tip), pendingNotify);
+        n.flags |= Notification.FLAG_SHOW_LIGHTS 
+                | Notification.FLAG_ONLY_ALERT_ONCE
+                | Notification.FLAG_AUTO_CANCEL;
+        n.defaults |= Notification.DEFAULT_LIGHTS;
+        NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(LARGE_SPACE_NOTIFICATION_ID);
+        nm.notify(LARGE_SPACE_NOTIFICATION_ID, n);
+    }
+    
     class PkgSizeObserver extends IPackageStatsObserver.Stub {
         public void onGetStatsCompleted(PackageStats pStats, boolean succeeded) {
-             LOGD("space:" + pStats.dataSize);
+             LOGD("space:" + pStats.dataSize + ",config max:" + mConfig.getMaxSpace());
+             if (pStats.dataSize >= mConfig.getMaxSpace()) {
+                 notifyLargeSpace();
+             }
          }
      }
     

@@ -32,7 +32,7 @@ public class RequestProvider extends ContentProvider {
     public static final String OBJECT = "object";
     public static final String BODY = "body";
     public static final String TIME = "time";
-    public static final String RETURNED = "return";
+    public static final String RESPONSE = "response";
     
     private static final int REQUESTS = 1;
     private static final int REQUEST_ID = 2;
@@ -53,7 +53,7 @@ public class RequestProvider extends ContentProvider {
     								+ " integer primary key autoincrement, " + OWNER + " text, "
     								+ ACTION + " integer, " + TYPE + " text, " + USER + " text, "
     								+ OBJECT + " text, " + BODY + " text, " + TIME + " long,"
-    								+ RETURNED + " boolean);";
+    								+ RESPONSE + " integer);";
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
 

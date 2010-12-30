@@ -35,11 +35,10 @@ public class WarnReceiver extends BroadcastReceiver {
             mWarn = Warn.CREATOR.createFromParcel(in);
             if (mWarn.getShowType() == WarnManager.SHOW_TYPE_DIALOG) {
             	launchWarnDialog(mWarn);
+            	launchAlertService();
             } else if (mWarn.getShowType() == WarnManager.SHOW_TYPE_NOTIFY) {
             	notifyWarn(mWarn);
             }
-            
-            launchAlertService();
             
             if (mWarn.getRepeatType() != WarnManager.REPEAT_TYPE_NONE) {
                 invokeNextAlarm(mWarn);
@@ -115,6 +114,12 @@ public class WarnReceiver extends BroadcastReceiver {
 		        | Notification.FLAG_ONLY_ALERT_ONCE
 		        | Notification.FLAG_AUTO_CANCEL;
 		n.defaults |= Notification.DEFAULT_LIGHTS;
+		if (warn.isSound()) {
+		    n.defaults |= Notification.DEFAULT_SOUND;
+		}
+		if (warn.isVibrate()) {
+		    n.defaults |= Notification.DEFAULT_VIBRATE;
+		}
 		NotificationManager nm = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.cancel(warn.getID());
 		nm.notify(warn.getID(), n);
