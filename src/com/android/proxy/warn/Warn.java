@@ -21,6 +21,7 @@ public class Warn implements Parcelable {
 	private String mIntentAction;
 	private String mIntentData;
 	private boolean mChecked;
+	private String mTitle;
 	
 	public Warn() {
 		
@@ -138,6 +139,14 @@ public class Warn implements Parcelable {
 		this.mChecked = checked;
 	}
 	
+	public void setTitle(String title) {
+		mTitle = title;
+	}
+	
+	public String getTitle() {
+		return mTitle;
+	}
+	
 	public boolean isOutOfDate() {
 		return mRepeatType == WarnManager.REPEAT_TYPE_NONE ? (System.currentTimeMillis() > mTriggerTime) : 
 			(mFinishTime > mTriggerTime && System.currentTimeMillis() > mFinishTime);
@@ -229,6 +238,7 @@ public class Warn implements Parcelable {
 		dest.writeString(mIntentAction);
 		dest.writeString(mIntentData);
 		dest.writeString(Boolean.toString(mChecked));
+		dest.writeString(mTitle);
 	}
 	
 	public static final Parcelable.Creator<Warn> CREATOR = new Parcelable.Creator<Warn>() {
@@ -256,6 +266,7 @@ public class Warn implements Parcelable {
         mIntentAction = in.readString();
         mIntentData = in.readString();
         mChecked = Boolean.valueOf(in.readString());
+        mTitle = in.readString();
     }
 
 

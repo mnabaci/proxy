@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2007 Esmertec AG.
  * Copyright (C) 2007 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.proxy;
 
-import com.android.proxy.cache.Request;
-import com.android.proxy.cache.Response;
+package com.android.proxy.cache;
 
-interface IProxyService {
-
-    int getPid();
-    
-    int postRequest(in Request request);
-    
-    Response getResponse(int id, in String packageName);
-}
+parcelable Request;

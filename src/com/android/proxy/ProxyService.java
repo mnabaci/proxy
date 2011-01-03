@@ -1,9 +1,6 @@
 package com.android.proxy;
 
-import com.android.proxy.cache.RequestProvider;
-import com.android.proxy.cache.ResponseProvider;
-import com.android.proxy.utils.Environment;
-import com.android.proxy.warn.WarnProvider;
+import java.util.Map;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -11,20 +8,20 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageStats;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.IPackageStatsObserver;
 import android.database.ContentObserver;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.proxy.cache.Request;
+import com.android.proxy.cache.RequestProvider;
+import com.android.proxy.cache.Response;
+import com.android.proxy.cache.ResponseProvider;
+import com.android.proxy.utils.Environment;
+import com.android.proxy.warn.WarnProvider;
 
 public class ProxyService extends Service {
 
@@ -37,7 +34,6 @@ public class ProxyService extends Service {
     private Config mConfig;
     private DataSpaceObserver mSpaceObserver;
     private PackageManager mPm;
-    private PkgSizeObserver mSizeObserver;
     
     private final IProxyService.Stub mBinder = new IProxyService.Stub() {
         
@@ -46,6 +42,21 @@ public class ProxyService extends Service {
             LOGD("getPid");
             return Process.myPid();
         }
+
+		public int postRequest(Request request) throws RemoteException {
+			// TODO Auto-generated method stub
+			LOGD("postRequest," + request.action);
+			return 0;
+		}
+
+		public Response getResponse(int id, String packageName) throws RemoteException {
+			// TODO Auto-generated method stub
+			LOGD("getResponse," + id);
+			Response response = new Response();
+			response.resultCode = 10;
+			response.objectIds[0] = 11;
+			return response;
+		}
     };
 
     @Override
@@ -67,7 +78,6 @@ public class ProxyService extends Service {
         getContentResolver().registerContentObserver(RequestProvider.CONTENT_URI, true, mSpaceObserver);
         getContentResolver().registerContentObserver(ResponseProvider.CONTENT_URI, true, mSpaceObserver);
         mPm = getPackageManager();
-        mSizeObserver = new PkgSizeObserver();
     }
 
     @Override
@@ -113,14 +123,14 @@ public class ProxyService extends Service {
         nm.notify(LARGE_SPACE_NOTIFICATION_ID, n);
     }
     
-    class PkgSizeObserver extends IPackageStatsObserver.Stub {
-        public void onGetStatsCompleted(PackageStats pStats, boolean succeeded) {
-             LOGD("space:" + pStats.dataSize + ",config max:" + mConfig.getMaxSpace());
-             if (pStats.dataSize >= mConfig.getMaxSpace()) {
-                 notifyLargeSpace();
-             }
-         }
-     }
+//    class PkgSizeObserver extends IPackageStatsObserver.Stub {
+//        public void onGetStatsCompleted(PackageStats pStats, boolean succeeded) {
+//             LOGD("space:" + pStats.dataSize + ",config max:" + mConfig.getMaxSpace());
+//             if (pStats.dataSize >= mConfig.getMaxSpace()) {
+//                 notifyLargeSpace();
+//             }
+//         }
+//     }
     
     public class DataSpaceObserver extends ContentObserver {
 
@@ -131,7 +141,7 @@ public class ProxyService extends Service {
     	
 		public void onChange(boolean selfChange) {
 			LOGD("onChange");
-			mPm.getPackageSizeInfo(getPackageName(), mSizeObserver);
+//			mPm.getPackageSizeInfo(getPackageName(), mSizeObserver);
 		}
     }
     

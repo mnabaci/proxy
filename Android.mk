@@ -3,9 +3,12 @@ include $(CLEAR_VARS)
 
 #LOCAL_MODULE_TAGS := eng
 
+LOCAL_AIDL_INCLUDES := $(FRAMEWORKS_BASE_JAVA_SRC_DIRS)
+LOCAL_AIDL_INCLUDES += src/com/android/proxy/cache/Request.aidl
+
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_SRC_FILES += src/com/android/proxy/IProxyService.aidl
-
+ 
 LOCAL_PACKAGE_NAME := Proxy
 
 # can not be platform
@@ -19,7 +22,9 @@ include $(BUILD_PACKAGE)
 
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := src/com/android/proxy/IProxyService.aidl
+LOCAL_SRC_FILES := src/com/android/proxy/IProxyService.aidl \
+                   src/com/android/proxy/cache/Request.java \
+                   src/com/android/proxy/cache/Response.java
 LOCAL_MODULE := com.android.proxy.proxyservice
 LOCAL_CERTIFICATE := shared
 
