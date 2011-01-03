@@ -8,8 +8,6 @@
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <provider android:name="com.android.proxy.warn.WarnProvider"
             android:authorities="com.android.proxy.warn"
-            android:writePermission="com.android.proxy.WRITE_WARN"
-            android:readPermission="com.android.proxy.READ_WARN"
             android:exported="true"/>
         <provider android:name="com.android.proxy.cache.RequestProvider"
             android:authorities="com.android.proxy.cache.request"

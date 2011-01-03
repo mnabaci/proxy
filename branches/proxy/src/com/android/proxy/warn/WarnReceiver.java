@@ -91,6 +91,7 @@ public class WarnReceiver extends BroadcastReceiver {
 		if (mDialog == null) createWarnDialog();
 		if (mDialog != null) {
 			mDialog.setMessage(warn.getMessage());
+			mDialog.setTitle(warn.getTitle());
 			mDialog.show();
 		}
 	}
@@ -109,7 +110,7 @@ public class WarnReceiver extends BroadcastReceiver {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingNotify = PendingIntent.getActivity(mContext, warn.getID(), intent, 0);
 		Notification n = new Notification(R.drawable.icon, warn.getMessage(), System.currentTimeMillis());
-		n.setLatestEventInfo(mContext, "Warn", warn.getMessage(), pendingNotify);
+		n.setLatestEventInfo(mContext, warn.getTitle(), warn.getMessage(), pendingNotify);
 		n.flags |= Notification.FLAG_SHOW_LIGHTS 
 		        | Notification.FLAG_ONLY_ALERT_ONCE
 		        | Notification.FLAG_AUTO_CANCEL;

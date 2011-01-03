@@ -36,7 +36,7 @@ public class WarnManager {
 		WarnProvider.REPEAT_TYPE, WarnProvider.REPEAT_INTERVAL_TIME, WarnProvider.FINISH_TIME,
 		WarnProvider.MESSAGE, WarnProvider.VIBRATE, WarnProvider.SOUND, WarnProvider.SHOW_TYPE,
 		WarnProvider.INTENT_TARGET, WarnProvider.INTENT_ACTION, WarnProvider.INTENT_DATA,
-		WarnProvider.CHECKED};
+		WarnProvider.CHECKED, WarnProvider.TITLE};
 	private static String[] projection_id = {WarnProvider._ID};
 	private static final int ID_COLUMN = 0;
 	private static final int OWNER_COLUMN = 1;
@@ -52,6 +52,7 @@ public class WarnManager {
 	private static final int INTENT_ACTION_COLUMN = 11;
 	private static final int INTENT_DATA_COLUMN = 12;
 	private static final int CHECKED_COLUMN = 13;
+	private static final int TITLE_COLUMN = 14;
 	
 	public static final String INTENT_EXTRA_WARN = "warn";
 	
@@ -143,6 +144,7 @@ public class WarnManager {
 		warn.setIntentAction(cursor.getString(INTENT_ACTION_COLUMN));
 		warn.setIntentData(cursor.getString(INTENT_DATA_COLUMN));
 		warn.setChecked(Boolean.valueOf(cursor.getString(CHECKED_COLUMN)));
+		warn.setTitle(cursor.getString(TITLE_COLUMN));
 		return warn;
 	}
 	

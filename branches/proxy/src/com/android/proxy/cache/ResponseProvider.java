@@ -26,6 +26,8 @@ public class ResponseProvider extends ContentProvider {
     
     public static final String _ID = "_id";
     public static final String OWNER = "owner";
+    public static final String RESULT_CODE = "code";
+    public static final String ERROR = "error";
     public static final String BODY = "body";
     public static final String TIME = "time";
     public static final String REQUEST = "request";
