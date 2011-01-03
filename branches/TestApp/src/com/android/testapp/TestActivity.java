@@ -3,6 +3,8 @@ package com.android.testapp;
 import java.util.Calendar;
 
 import com.android.proxy.IProxyService;
+import com.android.proxy.cache.Request;
+import com.android.proxy.cache.Response;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -13,6 +15,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -38,6 +41,21 @@ public class TestActivity extends Activity {
             // TODO Auto-generated method stub
             LOGD("onServiceConnected");
             mService = IProxyService.Stub.asInterface(service);
+            Request request = new Request();
+            request.action = 100;
+            try {
+				mService.postRequest(request);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try {
+				Response response = mService.getResponse(1, getPackageName());
+				LOGD("getResponse:" + response.resultCode + ",object id:" + response.objectIds[0]);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     };
     
