@@ -33,11 +33,12 @@ public class EditWarnActivity extends Activity {
     private Spinner mRepeatTypeSpinner;
     private EditText mRepeatIntervalEdit;
     private EditText mMessageEdit;
+    private EditText mTitleEdit;
     private Spinner mShowTypeSpinner;
     private Button mCommitButton;
     private Button mCancelButton;
     private static final String[] PROJECTION = {"_id", "owner", "trigger", "repeat", "interval", "finish", "message",
-        "vibrate", "sound", "show_type", "intent_target", "intent_action", "intent_data", "checked"};
+        "vibrate", "sound", "show_type", "intent_target", "intent_action", "intent_data", "checked", "title"};
     
     private int mWarnID;
 
@@ -52,6 +53,7 @@ public class EditWarnActivity extends Activity {
         mRepeatTypeSpinner = (Spinner)findViewById(R.id.repeat_type);
         mRepeatIntervalEdit = (EditText)findViewById(R.id.interval_time);
         mMessageEdit = (EditText)findViewById(R.id.message);
+        mTitleEdit = (EditText)findViewById(R.id.title);
         mShowTypeSpinner = (Spinner)findViewById(R.id.show_type);
         mCommitButton = (Button)findViewById(R.id.commit);
         mCancelButton = (Button)findViewById(R.id.cancel);
@@ -80,6 +82,7 @@ public class EditWarnActivity extends Activity {
                     mFinishTimePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
                     mMessageEdit.setText(cursor.getString(6));
                     mShowTypeSpinner.setSelection(cursor.getInt(9));
+                    mTitleEdit.setText(cursor.getString(14));
                 }
                 cursor.close();
             }
@@ -115,6 +118,7 @@ public class EditWarnActivity extends Activity {
                 mFinishTimePicker.getCurrentHour(), mFinishTimePicker.getCurrentMinute(), 0);
         values.put("finish", calendar.getTime().getTime());
         values.put("message", mMessageEdit.getText().toString());
+        values.put("title", mTitleEdit.getText().toString());
         values.put("vibrate", true);
         values.put("sound", true);
         values.put("show_type", mShowTypeSpinner.getSelectedItemPosition());
