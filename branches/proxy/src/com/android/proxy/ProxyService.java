@@ -45,7 +45,10 @@ public class ProxyService extends Service {
 
 		public int postRequest(Request request) throws RemoteException {
 			// TODO Auto-generated method stub
-			LOGD("postRequest," + request.action);
+			LOGD("postRequest," + request.action + ",objects size:" + request.objects.size());
+			Map map = request.objects.get(0);
+			LOGD("objects 0 value" + map.get("attribute").toString());
+			Request.transformObjectsToXML(request, "/data/data/com.android.proxy/files/body.xml");
 			return 0;
 		}
 
