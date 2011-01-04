@@ -1,10 +1,8 @@
 package com.android.testapp;
 
 import java.util.Calendar;
-
-import com.android.proxy.IProxyService;
-import com.android.proxy.cache.Request;
-import com.android.proxy.cache.Response;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -19,6 +17,10 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.android.proxy.IProxyService;
+import com.android.proxy.cache.Request;
+import com.android.proxy.cache.Response;
 
 @SuppressWarnings("unused")
 public class TestActivity extends Activity {
@@ -43,6 +45,9 @@ public class TestActivity extends Activity {
             mService = IProxyService.Stub.asInterface(service);
             Request request = new Request();
             request.action = 100;
+            Map map = new HashMap<String, String>();
+            map.put("attribute", "value");
+            request.objects.add(map);
             try {
 				mService.postRequest(request);
 			} catch (RemoteException e) {
