@@ -26,11 +26,9 @@ public class ResponseProvider extends ContentProvider {
     
     public static final String _ID = "_id";
     public static final String OWNER = "owner";
-    public static final String RESULT_CODE = "code";
-    public static final String ERROR = "error";
     public static final String BODY = "body";
     public static final String TIME = "time";
-    public static final String REQUEST = "request";
+    public static final String REQUEST_ID = "request_id";
     
     private static final int RESPONSES = 1;
     private static final int RESPONSE_ID = 2;
@@ -49,7 +47,7 @@ public class ResponseProvider extends ContentProvider {
     
     private static final String DATABASE_CREATE = "create table " + DATABASE_TABLE + " (" + _ID 
     								+ " integer primary key autoincrement, " + OWNER + " text, "
-    								+ BODY + " text, " + TIME + " long," + REQUEST + " integer);";
+    								+ BODY + " text, " + TIME + " long," + REQUEST_ID + " integer);";
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
