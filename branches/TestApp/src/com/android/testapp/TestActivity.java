@@ -45,9 +45,6 @@ public class TestActivity extends Activity {
             mService = IProxyService.Stub.asInterface(service);
             Request request = new Request();
             request.action = 100;
-            Map map = new HashMap<String, String>();
-            map.put("attribute", "value");
-            request.objects.add(map);
             try {
 				mService.postRequest(request);
 			} catch (RemoteException e) {
@@ -56,7 +53,7 @@ public class TestActivity extends Activity {
 			}
 			try {
 				Response response = mService.getResponse(1, getPackageName());
-				LOGD("getResponse:" + response.resultCode + ",object id:" + response.objectIds[0]);
+				LOGD("getResponse:" + response.requestId);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
