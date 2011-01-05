@@ -1,15 +1,18 @@
 package com.android.proxy;
 
-import java.util.Map;
+import java.util.Vector;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Process;
@@ -20,6 +23,7 @@ import com.android.proxy.cache.Request;
 import com.android.proxy.cache.RequestProvider;
 import com.android.proxy.cache.Response;
 import com.android.proxy.cache.ResponseProvider;
+import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.warn.WarnProvider;
 
@@ -32,8 +36,12 @@ public class ProxyService extends Service {
     
     private Environment mEnvironment;
     private Config mConfig;
+    private DeviceInfo mDeviceInfo;
     private DataSpaceObserver mSpaceObserver;
     private PackageManager mPm;
+    private Response mResponse;
+    private ContentValues mContentValues;
+    private Vector<Request> mRequestQueue;
     
     private final IProxyService.Stub mBinder = new IProxyService.Stub() {
         
@@ -43,21 +51,17 @@ public class ProxyService extends Service {
             return Process.myPid();
         }
 
-		public int postRequest(Request request) throws RemoteException {
+		public Response postRequest(Request request) throws RemoteException {
 			// TODO Auto-generated method stub
-			LOGD("postRequest," + request.action + ",objects size:" + request.objects.size());
-			Map map = request.objects.get(0);
-			LOGD("objects 0 value" + map.get("attribute").toString());
-			Request.transformObjectsToXML(request, "/data/data/com.android.proxy/files/body.xml");
-			return 0;
+			LOGD("postRequest," + request.action);
+			return null;
 		}
 
 		public Response getResponse(int id, String packageName) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("getResponse," + id);
 			Response response = new Response();
-			response.resultCode = 10;
-			response.objectIds[0] = 11;
+			response.requestId = -1;
 			return response;
 		}
     };
@@ -65,7 +69,7 @@ public class ProxyService extends Service {
     @Override
     public IBinder onBind(Intent arg0) {
         // TODO Auto-generated method stub
-        LOGD("onBind");
+        LOGD("onBind,");
         return mBinder;
     }
 
@@ -76,11 +80,15 @@ public class ProxyService extends Service {
         LOGD("onCreate");
         mEnvironment = Environment.getInstance(getApplicationContext());
         mConfig = Config.getInstance();
+        mDeviceInfo = DeviceInfo.getInstance(getApplicationContext());
         mSpaceObserver = new DataSpaceObserver(new Handler());
         getContentResolver().registerContentObserver(WarnProvider.CONTENT_URI, true, mSpaceObserver);
         getContentResolver().registerContentObserver(RequestProvider.CONTENT_URI, true, mSpaceObserver);
         getContentResolver().registerContentObserver(ResponseProvider.CONTENT_URI, true, mSpaceObserver);
         mPm = getPackageManager();
+        mResponse = new Response();
+        mContentValues = new ContentValues();
+        mRequestQueue = new Vector<Request>();
     }
 
     @Override
@@ -109,6 +117,43 @@ public class ProxyService extends Service {
         // TODO Auto-generated method stub
         LOGD("onUnbind");
         return super.onUnbind(intent);
+    }
+    
+    /**
+     * 
+     * @param request
+     * @return request id in request cache
+     */
+    private int insertRequestToCache(Request request) {
+    	mContentValues.clear();
+    	mContentValues.put(RequestProvider.ACTION, request.action);
+    	mContentValues.put(RequestProvider.OWNER, request.packageName);
+    	mContentValues.put(RequestProvider.ITEMS, request.items);
+    	mContentValues.put(RequestProvider.VERSION_ID, request.versionId);
+    	mContentValues.put(RequestProvider.BODY, request.body);
+    	mContentValues.put(RequestProvider.TIME, System.currentTimeMillis());
+    	Uri uri = getContentResolver().insert(RequestProvider.CONTENT_URI, mContentValues);
+    	return (int) ContentUris.parseId(uri);
+    }
+    
+    private void deleteRequestFromCache(int id) {
+    	Uri deleteUri = ContentUris.withAppendedId(RequestProvider.CONTENT_URI, id);
+    	getContentResolver().delete(deleteUri, null, null);
+    }
+    
+    private int insertResponseToCache(Response response) {
+    	mContentValues.clear();
+    	mContentValues.put(ResponseProvider.OWNER, response.packageName);
+    	mContentValues.put(ResponseProvider.BODY, response.body);
+    	mContentValues.put(ResponseProvider.REQUEST_ID, response.requestId);
+    	mContentValues.put(ResponseProvider.TIME, response.time);
+    	Uri uri = getContentResolver().insert(ResponseProvider.CONTENT_URI, mContentValues);
+    	return (int) ContentUris.parseId(uri);
+    }
+    
+    private void deleteResponseFromCache(int id) {
+    	Uri deleteUri = ContentUris.withAppendedId(ResponseProvider.CONTENT_URI, id);
+    	getContentResolver().delete(deleteUri, null, null);
     }
     
     private void notifyLargeSpace() {

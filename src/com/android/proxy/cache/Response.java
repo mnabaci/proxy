@@ -5,13 +5,22 @@ import android.os.Parcelable;
 
 public class Response implements Parcelable {
 	
-	private static final int CAPACITY = 100;
+	public static final int ASYNC_RESPONSE = -1;
 	
-	public int resultCode;
-	public int[] objectIds = new int[CAPACITY];
+	public String packageName;
+	public int requestId;
+	public long time;
+	public String body;
 	
 	public Response() {
 		
+	}
+	
+	public void reset() {
+		packageName = null;
+		requestId = ASYNC_RESPONSE;
+		time = 0;
+		body = null;
 	}
 
 	public int describeContents() {
@@ -21,13 +30,17 @@ public class Response implements Parcelable {
 
 	public void writeToParcel(Parcel arg0, int arg1) {
 		// TODO Auto-generated method stub
-		arg0.writeInt(resultCode);
-		arg0.writeIntArray(objectIds);
+		arg0.writeString(packageName);
+		arg0.writeInt(requestId);
+		arg0.writeLong(time);
+		arg0.writeString(body);
 	}
 	
 	public void readFromParcel(Parcel in) {
-		resultCode = in.readInt();
-		in.readIntArray(objectIds);
+		packageName = in.readString();
+		requestId = in.readInt();
+		time = in.readLong();
+		body = in.readString();
 	}
 
 	

@@ -22,7 +22,7 @@ interface IProxyService {
 
     int getPid();
     
-    int postRequest(in Request request);
+    Response postRequest(in Request request);
     
     Response getResponse(int id, in String packageName);
 }
