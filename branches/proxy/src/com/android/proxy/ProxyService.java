@@ -54,7 +54,13 @@ public class ProxyService extends Service {
 		public Response postRequest(Request request) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("postRequest," + request.action);
-			return null;
+			if (mDeviceInfo.isNetworkAvailable()) {
+				handleRequest(request);
+			} else {
+				mResponse.reset();
+				mResponse.requestId = insertRequestToCache(request);
+			}
+			return mResponse;
 		}
 
 		public Response getResponse(int id, String packageName) throws RemoteException {
@@ -117,6 +123,10 @@ public class ProxyService extends Service {
         // TODO Auto-generated method stub
         LOGD("onUnbind");
         return super.onUnbind(intent);
+    }
+    
+    private void handleRequest(Request request) {
+    	return;
     }
     
     /**
