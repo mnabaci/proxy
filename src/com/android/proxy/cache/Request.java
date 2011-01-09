@@ -17,6 +17,9 @@ public class Request implements Parcelable {
 	public String versionId;
 	public String body;
 	
+	//for proxy use, not for client apps
+	public int cacheId;
+	
 	public Request() {
 
 	}

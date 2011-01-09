@@ -11,11 +11,13 @@ public class Environment {
 	
 	public static final String CONFIG_FILE_NAME = "config.ini";
 	public static final String CACHE_DIR_NAME = ".cache";
+	public static final String TRUST_LIST_FILE_NAME = "trust.xml";
 	
 	private Context mContext;
 	private static Environment sEnvironment = null;
 	public static String FILES_DIR_PATH;
 	public static String CONFIG_FILE_PATH;
+	public static String TRUST_LIST_FILE_PATH;
 	
 	public static Environment getInstance(Context context) {
 		if (sEnvironment == null) {
@@ -36,6 +38,7 @@ public class Environment {
 		}
 		FILES_DIR_PATH = mContext.getFilesDir().getAbsolutePath();
 		CONFIG_FILE_PATH = FILES_DIR_PATH + "/" + CONFIG_FILE_NAME;
+		TRUST_LIST_FILE_PATH = FILES_DIR_PATH + "/" + TRUST_LIST_FILE_NAME;
 		init();
 	}
 	
@@ -43,6 +46,8 @@ public class Environment {
 		try {
 			ZipUtil.outputFile(mContext.getAssets().open(CONFIG_FILE_NAME), 
 			        FILES_DIR_PATH + File.separator, CONFIG_FILE_NAME);
+			ZipUtil.outputFile(mContext.getAssets().open(TRUST_LIST_FILE_NAME), 
+			        FILES_DIR_PATH + File.separator, TRUST_LIST_FILE_NAME);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,28 +1,34 @@
 package com.android.proxy;
 
+import java.util.LinkedList;
 import java.util.Vector;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.proxy.cache.Request;
 import com.android.proxy.cache.RequestProvider;
 import com.android.proxy.cache.Response;
 import com.android.proxy.cache.ResponseProvider;
+import com.android.proxy.internet.RequestHandler;
 import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.warn.WarnProvider;
@@ -32,7 +38,31 @@ public class ProxyService extends Service {
     private static final String TAG = "ProxyService";
     private final static boolean DEBUG = true;
     
+    public static final String PROXY_INTENT_TYPE = "type";
+    
+    public static final int PROXY_INTENT_TYPE_POSTREQUESTS = 1;
+    
     private static final int LARGE_SPACE_NOTIFICATION_ID = -1;
+    
+    private static final String[] RESPONSE_PROJECTION = {ResponseProvider._ID, 
+    	ResponseProvider.OWNER, ResponseProvider.BODY, ResponseProvider.REQUEST_ID, 
+    	ResponseProvider.TIME};
+    private static final int RESPONSE_ID_COL = 0;
+    private static final int RESPONSE_OWNER_COL = 1;
+    private static final int RESPONSE_BODY_COL = 2;
+    private static final int RESPONSE_RID_COL = 3;
+    private static final int RESPONSE_TIME_COL = 4;
+    
+    private static final String[] REQUEST_PROJECTION = {RequestProvider._ID, RequestProvider.ACTION,
+    	RequestProvider.ITEMS, RequestProvider.BODY, RequestProvider.OWNER, RequestProvider.VERSION_ID,
+    	RequestProvider.RESPONSE};
+    private static final int REQUEST_ID_COL = 0;
+    private static final int REQUEST_ACTION_COL = 1;
+    private static final int REQUEST_ITEMS_COL = 2;
+    private static final int REQUEST_BODY_COL = 3;
+    private static final int REQUEST_OWNER_COL = 4;
+    private static final int REQUEST_VERSION_COL = 5;
+    private static final int REQUEST_RESPONSE_COL = 6;
     
     private Environment mEnvironment;
     private Config mConfig;
@@ -40,8 +70,11 @@ public class ProxyService extends Service {
     private DataSpaceObserver mSpaceObserver;
     private PackageManager mPm;
     private Response mResponse;
+    private Request mRequest;
     private ContentValues mContentValues;
     private Vector<Request> mRequestQueue;
+    private RequestHandler mRequestHandler;
+    private boolean mIsWorking = false;
     
     private final IProxyService.Stub mBinder = new IProxyService.Stub() {
         
@@ -54,21 +87,14 @@ public class ProxyService extends Service {
 		public Response postRequest(Request request) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("postRequest," + request.action);
-			if (mDeviceInfo.isNetworkAvailable()) {
-				handleRequest(request);
-			} else {
-				mResponse.reset();
-				mResponse.requestId = insertRequestToCache(request);
-			}
+			handleRequest(request, false, mResponse);
 			return mResponse;
 		}
 
 		public Response getResponse(int id, String packageName) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("getResponse," + id);
-			Response response = new Response();
-			response.requestId = -1;
-			return response;
+			return getResponseFromCache(id);
 		}
     };
 
@@ -93,13 +119,95 @@ public class ProxyService extends Service {
         getContentResolver().registerContentObserver(ResponseProvider.CONTENT_URI, true, mSpaceObserver);
         mPm = getPackageManager();
         mResponse = new Response();
+        mRequest = new Request();
         mContentValues = new ContentValues();
         mRequestQueue = new Vector<Request>();
+        mRequestHandler = new RequestHandler(mConfig.getCloudUrl());
+        mIsWorking = false;
+    }
+    
+    private synchronized void handleRequestsInCache() {
+    	Cursor cursor = getContentResolver().query(RequestProvider.CONTENT_URI, REQUEST_PROJECTION,
+    			RequestProvider.RESPONSE + " = " + RequestProvider.NO_RESPONSE, null, null);
+    	if (cursor.getCount() > 0) {
+    		cursor.moveToFirst();
+    		do {
+    			obtainRequestFromCursor(cursor, mRequest);
+    			handleRequest(mRequest, true, mResponse);
+    		} while (cursor.moveToNext());
+    	}
+    	cursor.close();
+    }
+    
+    private void obtainRequestFromCursor(Cursor cursor, Request request) {
+    	if (request == null)  return;
+    	request.cacheId = cursor.getInt(REQUEST_ID_COL);
+    	request.packageName = cursor.getString(REQUEST_OWNER_COL);
+    	request.action = cursor.getInt(REQUEST_ACTION_COL);
+    	request.items = cursor.getString(REQUEST_ITEMS_COL);
+    	request.versionId = cursor.getString(REQUEST_VERSION_COL);
+    	request.body = cursor.getString(REQUEST_BODY_COL);
+    }
+    
+    private synchronized void handleRequest(Request request, boolean fromCache, Response response) {
+		if (!mDeviceInfo.isNetworkAvailable()) {
+			if (!fromCache) {
+				int rId = insertRequestToCache(request);
+    			request.cacheId = rId;
+			}
+    		mResponse.reset();
+    		mResponse.requestId = request.cacheId;
+    	} else {
+    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getSessionId(), 
+    				request);
+    		if (TextUtils.isEmpty(result)) {
+    			if (!fromCache) {
+    				int rId = insertRequestToCache(request);
+    				request.cacheId = rId;
+    			}
+        		mResponse.reset();
+        		mResponse.requestId = request.cacheId;
+    		} else {
+    			LOGD("handle request, response=" + result);
+    			mResponse.body = result;
+    			mResponse.requestId = Response.REAL_RESPONSE;
+    			mResponse.packageName = request.packageName;
+    			mResponse.time = System.currentTimeMillis();
+    			if (fromCache) {
+    				int responseId = insertResponseToCache(mResponse);
+    				setRequestHandledInCache(request.cacheId, responseId);
+    			}
+    		}
+    	}
+		return;
+    }
+    
+    private synchronized void handleRequestQueue() {
+    	while (!mRequestQueue.isEmpty()) {
+    		Request request = mRequestQueue.get(0);
+    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getSessionId(), 
+    				request);
+    		if (!TextUtils.isEmpty(result)) {
+    			mResponse.body = result;
+    			mResponse.requestId = request.cacheId;
+    			mResponse.packageName = request.packageName;
+    			mResponse.time = System.currentTimeMillis();
+    			int responseId = insertResponseToCache(mResponse);
+    			setRequestHandledInCache(request.cacheId, responseId);
+    		}
+    		mRequestQueue.remove(0);
+    	}
+    }
+    
+    private synchronized void startWorking() {
+    	if (mIsWorking) return;
+    	mIsWorking = true;
+    	handleRequestQueue();
+    	mIsWorking = false;
     }
 
     @Override
     public void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
         getContentResolver().unregisterContentObserver(mSpaceObserver);
         LOGD("onDestroy");
@@ -115,6 +223,10 @@ public class ProxyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO Auto-generated method stub
+    	LOGD("onStartCommand,");
+    	if (intent.getIntExtra(PROXY_INTENT_TYPE, -1) == PROXY_INTENT_TYPE_POSTREQUESTS) {
+    		handleRequestsInCache();
+    	}
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -123,10 +235,6 @@ public class ProxyService extends Service {
         // TODO Auto-generated method stub
         LOGD("onUnbind");
         return super.onUnbind(intent);
-    }
-    
-    private void handleRequest(Request request) {
-    	return;
     }
     
     /**
@@ -142,6 +250,7 @@ public class ProxyService extends Service {
     	mContentValues.put(RequestProvider.VERSION_ID, request.versionId);
     	mContentValues.put(RequestProvider.BODY, request.body);
     	mContentValues.put(RequestProvider.TIME, System.currentTimeMillis());
+    	mContentValues.put(RequestProvider.RESPONSE, RequestProvider.NO_RESPONSE);
     	Uri uri = getContentResolver().insert(RequestProvider.CONTENT_URI, mContentValues);
     	return (int) ContentUris.parseId(uri);
     }
@@ -149,6 +258,13 @@ public class ProxyService extends Service {
     private void deleteRequestFromCache(int id) {
     	Uri deleteUri = ContentUris.withAppendedId(RequestProvider.CONTENT_URI, id);
     	getContentResolver().delete(deleteUri, null, null);
+    }
+    
+    private void setRequestHandledInCache(int requestId, int responseId) {
+    	mContentValues.clear();
+    	mContentValues.put(RequestProvider.RESPONSE, responseId);
+    	Uri uri = ContentUris.withAppendedId(RequestProvider.CONTENT_URI, requestId);
+    	getContentResolver().update(uri, mContentValues, null, null);
     }
     
     private int insertResponseToCache(Response response) {
@@ -164,6 +280,24 @@ public class ProxyService extends Service {
     private void deleteResponseFromCache(int id) {
     	Uri deleteUri = ContentUris.withAppendedId(ResponseProvider.CONTENT_URI, id);
     	getContentResolver().delete(deleteUri, null, null);
+    }
+    
+    private Response getResponseFromCache(int requestId) {
+    	Cursor cursor = getContentResolver().query(ResponseProvider.CONTENT_URI, 
+    			RESPONSE_PROJECTION, ResponseProvider.REQUEST_ID + " = " + requestId, null, null);
+    	if (cursor.getCount() > 0) {
+    		cursor.moveToFirst();
+    		mResponse.reset();
+    		mResponse.requestId = Response.REAL_RESPONSE;
+    		mResponse.body = cursor.getString(RESPONSE_BODY_COL);
+    		mResponse.packageName = cursor.getString(RESPONSE_OWNER_COL);
+    		mResponse.time = cursor.getLong(RESPONSE_TIME_COL);
+    	} else {
+    		mResponse.reset();
+    		mResponse.requestId = requestId;
+    	}
+    	cursor.close();
+    	return mResponse;
     }
     
     private void notifyLargeSpace() {
