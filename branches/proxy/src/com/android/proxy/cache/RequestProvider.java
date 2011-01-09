@@ -33,6 +33,8 @@ public class RequestProvider extends ContentProvider {
     public static final String TIME = "time";
     public static final String RESPONSE = "response";
     
+    public static final int NO_RESPONSE = -1;
+    
     private static final int REQUESTS = 1;
     private static final int REQUEST_ID = 2;
     private static UriMatcher uriMatcher;

@@ -36,7 +36,7 @@ public class DeviceInfo {
     
     public boolean isNetworkAvailable() {
     	ConnectivityManager cm = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);  
-    	NetworkInfo network = cm.getActiveNetworkInfo();    
+    	NetworkInfo network = cm.getActiveNetworkInfo();   
     	if(network != null){  
     		return network.isAvailable();  
     	}  

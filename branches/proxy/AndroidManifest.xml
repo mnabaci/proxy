@@ -41,10 +41,23 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name="WebServiceTestActivity"
+          android:label="@string/title_webservice" 
+          android:configChanges="keyboardHidden|orientation">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
         <receiver android:name="com.android.proxy.warn.WarnReceiver"/>   
         <receiver android:name="com.android.proxy.warn.WarnInitReceiver">
         	<intent-filter>
         		<action android:name="android.intent.action.BOOT_COMPLETED"/>
+        	</intent-filter>
+        </receiver>
+        <receiver android:name="com.android.proxy.NetReceiver">
+        	<intent-filter>
+        		<action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
         	</intent-filter>
         </receiver>
     </application>

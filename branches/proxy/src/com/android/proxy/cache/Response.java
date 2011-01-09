@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 public class Response implements Parcelable {
 	
-	public static final int ASYNC_RESPONSE = -1;
+	public static final int REAL_RESPONSE = -1;
 	
 	public String packageName;
 	public int requestId;
@@ -18,7 +18,7 @@ public class Response implements Parcelable {
 	
 	public void reset() {
 		packageName = null;
-		requestId = ASYNC_RESPONSE;
+		requestId = REAL_RESPONSE;
 		time = 0;
 		body = null;
 	}
