@@ -44,9 +44,14 @@ public class TestActivity extends Activity {
             LOGD("onServiceConnected");
             mService = IProxyService.Stub.asInterface(service);
             Request request = new Request();
-            request.action = 100;
+            request.action = Request.ACTION_POST;
+            request.items = "0";
+            request.versionId = "0";
+            request.packageName = getPackageName();
+            request.body = "0";
             try {
-				mService.postRequest(request);
+				Response response = mService.postRequest(request);
+				LOGD("response:" + response.body);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
