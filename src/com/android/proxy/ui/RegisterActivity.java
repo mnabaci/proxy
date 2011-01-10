@@ -13,11 +13,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.android.proxy.Config;
 import com.android.proxy.R;
+import com.android.proxy.cache.Request;
+import com.android.proxy.internet.RequestHandler;
+import com.android.proxy.utils.DeviceInfo;
 
 public class RegisterActivity extends Activity {
     private static final String TAG = "RegisterActivity";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     
     private DialogInterface.OnClickListener mNULLClickListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -40,6 +44,8 @@ public class RegisterActivity extends Activity {
     private EditText mEditPassword2;
     private EditText mEditPhone;
     private Spinner mSpinner;
+    private EditText mEditLastName;
+    private EditText mEditFirstName;
     
     private String mUserName;
     private String mPassword;
@@ -47,12 +53,19 @@ public class RegisterActivity extends Activity {
     private String mPhoneNumber;
     private String mEmailBox;
     private Toast mToast;
+    private String mLastName;
+    private String mFirstName;
+    
+    private RequestHandler mHandler;
+    private Request mRequest;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mToast = Toast.makeText(this, R.string.txt_illegal_username_password, Toast.LENGTH_LONG);
         resetViewComponents();
+        mHandler = new RequestHandler(Config.getInstance(getApplicationContext()).getCloudUrl());
+        mRequest = new Request();
     }
     
     private void resetViewComponents() {
@@ -62,11 +75,15 @@ public class RegisterActivity extends Activity {
         mEditPassword = (EditText)findViewById(R.id.reg_password);
         mEditPassword2 = (EditText)findViewById(R.id.reg_password2);
         mEditPhone = (EditText)findViewById(R.id.reg_phone);
+        mEditLastName = (EditText)findViewById(R.id.last_name);
+        mEditFirstName = (EditText)findViewById(R.id.first_name);
         mEditUserName.setText(mUserName);
         mEditPassword.setText(mPassword);
         mEditPassword2.setText(mPassword2);
         mEditPhone.setText(mPhoneNumber);
         mEditUserName.requestFocus();
+        mEditLastName.setText(mLastName);
+        mEditFirstName.setText(mFirstName);
         
         Button btnRegister = (Button)findViewById(R.id.btn_register);
         Button btnCancel = (Button)findViewById(R.id.btn_cancel);
@@ -77,6 +94,8 @@ public class RegisterActivity extends Activity {
                 mPassword = mEditPassword.getText().toString();
                 mPassword2 = mEditPassword2.getText().toString();
                 mPhoneNumber = mEditPhone.getText().toString();
+                mLastName = mEditLastName.getText().toString();
+                mFirstName = mEditFirstName.getText().toString();
                 int checkResult = checkInput(mUserName, mPassword, mPassword2);
                 if(checkResult == CHECK_ILLEGAL_INPUT) {
                     mToast.cancel();
@@ -88,8 +107,9 @@ public class RegisterActivity extends Activity {
                     mToast.setText(R.string.txt_diff_password);
                     mToast.show();
                     return;
+                } else {
+                	LOGD(postRegisterRequest());
                 }
-                
             }   
         }); 
         btnCancel.setOnClickListener(new OnClickListener(){
@@ -98,6 +118,23 @@ public class RegisterActivity extends Activity {
             }
             
         });
+    }
+    
+    private String postRegisterRequest() {
+    	Config config = Config.getInstance(getApplicationContext());
+    	mRequest.action = Request.ACTION_POST;
+    	mRequest.items = "USERINFO";
+    	mRequest.versionId = "-1";
+    	mRequest.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
+    		+ "<PWD>" + mEditPassword.getText().toString() + "</PWD>" 
+    		+ "<DEVICEPIM>" + config.getFlatId() + "</DEVICEPIM>"
+    		+ "<COMMPIM>" + DeviceInfo.getInstance(getApplicationContext()).getIMSI() + "</COMMPIM>"
+    		+ "<USERLNAME>" + mEditLastName.getText().toString() + "</USERLNAME>"
+    		+ "<USERFNAME>" + mEditFirstName.getText().toString() + "</USERFNAME>"
+    		+ "<MPHONE>" + mEditPhone.getText().toString() + "</MPHONE>"
+    		+ "</OBJECT></OBJECTS>";
+    	LOGD("request body:" + mRequest.body);
+    	return mHandler.handleRequest(mUserName, "EAGLELINK001", config.getSessionId(), mRequest);
     }
     
     private int checkInput(String username, String password, String password2) {
@@ -162,6 +199,8 @@ public class RegisterActivity extends Activity {
         mPassword = mEditPassword.getText().toString();
         mPassword2 = mEditPassword2.getText().toString();
         mPhoneNumber = mEditPhone.getText().toString();
+        mLastName = mEditLastName.getText().toString();
+        mFirstName = mEditFirstName.getText().toString();
         resetViewComponents();
     }
     

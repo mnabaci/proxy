@@ -19,6 +19,8 @@
     <string name="txt_password">密码</string>
     <string name="txt_password_again">确认密码</string>
     <string name="txt_phone">手机号码</string>
+    <string name="txt_last_name">姓</string>
+    <string name="txt_first_name">名</string>
     <string name="txt_illegal_username_password">用户名或密码不符合规范</string>
     <string name="txt_diff_password">两次密码不一致</string>
     

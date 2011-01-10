@@ -42,9 +42,9 @@ public class RequestHandler {
 		mSoapRequest = new SoapObject(NAMESPACE, getMethodName(request.action));
 		mSoapRequest.addProperty("arg0", userId);
 		mSoapRequest.addProperty("arg1", flatId);
-		mSoapRequest.addProperty("arg2", request.versionId);
-		mSoapRequest.addProperty("arg3", request.items);
-		mSoapRequest.addProperty("arg4", sessionId);
+		mSoapRequest.addProperty("arg2", sessionId);
+		mSoapRequest.addProperty("arg3", request.versionId);
+		mSoapRequest.addProperty("arg4", request.items);
 		mSoapRequest.addProperty("arg5", request.body);
 		mEnvelope.dotNet = false;
 		mEnvelope.setOutputSoapObject(mSoapRequest);

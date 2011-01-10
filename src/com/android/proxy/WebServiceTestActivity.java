@@ -6,6 +6,8 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import com.android.proxy.utils.Utils;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,12 +30,14 @@ public class WebServiceTestActivity extends Activity {
 		try {
 			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 			
-			request.addProperty("arg0", "0");
-			request.addProperty("arg1", "0");
-			request.addProperty("arg2", "0");
-			request.addProperty("arg3", "0");
-			request.addProperty("arg4", "0");
-			request.addProperty("arg5", "<OBJECTS><OBJECT><ATTRIBUTE1>VALUE1<ATTRIBUTE1></OBJECT></OBJECTS>");
+			request.addProperty("arg0", "testkevin1");
+			request.addProperty("arg1", "EAGLELINK001");
+			request.addProperty("arg2", "eaglelink888");
+			request.addProperty("arg3", "-1");
+			request.addProperty("arg4", "CONTACES");
+			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>eaglelink000004" +
+"</CONTACESID><WHETHEREXTEND>1</WHETHEREXTEND><FAMILYNAME>a</FAMILYNAME><USERNAME>b" +
+"</USERNAME><NICKNAME>jenny</NICKNAME></OBJECT></OBJECTS>");
 			Log.d("WebServiceActivity", "request:" + request.toString());
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER10);

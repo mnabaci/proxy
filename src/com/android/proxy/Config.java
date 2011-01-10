@@ -11,8 +11,12 @@ import java.util.Set;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.utils.INIFile;
 import com.android.proxy.utils.ThemeUtils;
@@ -26,6 +30,10 @@ public class Config {
     private static final String PROPERTY_MAX_SPACE = "MAX_SPACE";
     private static final String PROPERTY_URL = "URL";
     
+    public static final String PREF_USERID = "pref_userid";
+    public static final String PREF_SESSIONID = "pref_sessionid";
+    public static final String EMPTY_STRING = "";
+    
     private static final String TAG_PACKAGE = "package";
     
     private static final long VAL_MAX_SPACE = 1000000;
@@ -33,6 +41,10 @@ public class Config {
     private static Config sConfig = null;
     private String mConfigFilePath;
     private INIFile mConfigFile;
+    
+    private Context mContext;
+    private SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
     
     private long mMaxSpace;
     private String mCloudUrl;
@@ -42,24 +54,39 @@ public class Config {
     private String mSessionId;
     private Set<String> mTrustPackages;
     
-    public static Config getInstance() {
+    public static Config getInstance(Context context) {
     	if (sConfig == null) {
-    		sConfig = new Config();
+    		sConfig = new Config(context);
     	}
     	return sConfig;
     }
     
     public static void releaseInstance() {
+    	sConfig.release();
     	sConfig = null;
     }
     
-    private Config() {
-    	mConfigFilePath = Environment.CONFIG_FILE_PATH;
+    private Config(Context context) {
+    	mContext = context;
+    	mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mEditor = mSharedPreferences.edit();
+    	mConfigFilePath = Environment.getInstance(mContext).CONFIG_FILE_PATH;
     	mConfigFile = new INIFile(mConfigFilePath);
     	mMaxSpace = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, PROPERTY_MAX_SPACE, VAL_MAX_SPACE);
     	mCloudUrl = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_URL, "");
     	mTrustPackages = new HashSet<String>();
     	loadTrustPackages();
+    }
+    
+    private void release() {
+    	mContext = null;
+    	mSharedPreferences = null;
+    	mEditor = null;
+    	mConfigFilePath = null;
+    	mConfigFile = null;
+    	mCloudUrl = null;
+    	mTrustPackages.clear();
+    	mTrustPackages = null;
     }
     
     private void loadTrustPackages() {
@@ -107,15 +134,25 @@ public class Config {
     }
     
     public String getUserId() {
-    	return "0";
+    	return mSharedPreferences.getString(PREF_USERID, EMPTY_STRING);
     }
     
     public String getFlatId() {
-    	return "0";
+    	return DeviceInfo.getInstance(mContext).getIMEI();
     }
     
     public String getSessionId() {
-    	return "0";
+    	return mSharedPreferences.getString(PREF_SESSIONID, EMPTY_STRING);
+    }
+    
+    public void setUserId(String id) {
+    	mEditor.putString(PREF_USERID, id);
+    	mEditor.commit();
+    }
+    
+    public void setSessionId(String id) {
+    	mEditor.putString(PREF_SESSIONID, id);
+    	mEditor.commit();
     }
     
     private static void LOGD(String text) {
