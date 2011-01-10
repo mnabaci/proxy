@@ -111,7 +111,7 @@ public class ProxyService extends Service {
         super.onCreate();
         LOGD("onCreate");
         mEnvironment = Environment.getInstance(getApplicationContext());
-        mConfig = Config.getInstance();
+        mConfig = Config.getInstance(getApplicationContext());
         mDeviceInfo = DeviceInfo.getInstance(getApplicationContext());
         mSpaceObserver = new DataSpaceObserver(new Handler());
         getContentResolver().registerContentObserver(WarnProvider.CONTENT_URI, true, mSpaceObserver);

@@ -3,6 +3,7 @@ package com.android.proxy.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class DeviceInfo {
@@ -11,6 +12,7 @@ public class DeviceInfo {
     private final static boolean DEBUG = true;
     
     private Context mContext;
+    private TelephonyManager mTelephonyManager;
     
     private static DeviceInfo sDeviceInfo;
     
@@ -28,6 +30,7 @@ public class DeviceInfo {
     
     private DeviceInfo(Context context) {
     	mContext = context;
+    	mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
     }
     
     private void release() {
@@ -41,6 +44,19 @@ public class DeviceInfo {
     		return network.isAvailable();  
     	}  
     	return false;  
+    }
+    
+    public String getIMEI() {
+    	String myIMEI = mTelephonyManager.getDeviceId();
+        return myIMEI;
+    }
+    
+    public String getIMSI() {
+    	String myIMSI = mTelephonyManager.getSubscriberId();
+        if (myIMSI == null) {
+            myIMSI = "310260000000000";
+        }
+        return myIMSI;
     }
     
     private static void LOGD(String text) {
