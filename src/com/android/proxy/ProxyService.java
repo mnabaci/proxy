@@ -29,6 +29,7 @@ import com.android.proxy.cache.RequestProvider;
 import com.android.proxy.cache.Response;
 import com.android.proxy.cache.ResponseProvider;
 import com.android.proxy.internet.RequestHandler;
+import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.warn.WarnProvider;
@@ -158,7 +159,7 @@ public class ProxyService extends Service {
     		mResponse.reset();
     		mResponse.requestId = request.cacheId;
     	} else {
-    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getSessionId(), 
+    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getEncryptedSessionId(), 
     				request);
     		if (TextUtils.isEmpty(result)) {
     			if (!fromCache) {
@@ -173,6 +174,12 @@ public class ProxyService extends Service {
     			mResponse.requestId = Response.REAL_RESPONSE;
     			mResponse.packageName = request.packageName;
     			mResponse.time = System.currentTimeMillis();
+    			XMLResponse xmlInfo = RequestHandler.parseXMLResult(result);
+    			if (xmlInfo.sessionId.equals("null")) {
+    				
+    			} else {
+    				mConfig.setSessionId(xmlInfo.sessionId);
+    			}
     			if (fromCache) {
     				int responseId = insertResponseToCache(mResponse);
     				setRequestHandledInCache(request.cacheId, responseId);
@@ -185,7 +192,7 @@ public class ProxyService extends Service {
     private synchronized void handleRequestQueue() {
     	while (!mRequestQueue.isEmpty()) {
     		Request request = mRequestQueue.get(0);
-    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getSessionId(), 
+    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getEncryptedSessionId(), 
     				request);
     		if (!TextUtils.isEmpty(result)) {
     			mResponse.body = result;

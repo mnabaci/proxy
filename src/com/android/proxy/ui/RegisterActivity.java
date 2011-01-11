@@ -17,7 +17,9 @@ import com.android.proxy.Config;
 import com.android.proxy.R;
 import com.android.proxy.cache.Request;
 import com.android.proxy.internet.RequestHandler;
+import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.utils.DeviceInfo;
+import com.android.proxy.utils.Utils;
 
 public class RegisterActivity extends Activity {
     private static final String TAG = "RegisterActivity";
@@ -65,7 +67,7 @@ public class RegisterActivity extends Activity {
         mToast = Toast.makeText(this, R.string.txt_illegal_username_password, Toast.LENGTH_LONG);
         resetViewComponents();
         mHandler = new RequestHandler(Config.getInstance(getApplicationContext()).getCloudUrl());
-        mRequest = new Request();
+        mRequest = new Request(); 
     }
     
     private void resetViewComponents() {
@@ -108,7 +110,17 @@ public class RegisterActivity extends Activity {
                     mToast.show();
                     return;
                 } else {
-                	LOGD(postRegisterRequest());
+                	String result = postRegisterRequest();
+                	LOGD("result:" + result);
+                	XMLResponse xmlInfo = RequestHandler.parseXMLResult(result);
+                	if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
+                		Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
+                		Config.getInstance(getApplicationContext()).setUserId(mUserName);
+                		finish();
+                	} else {
+                		Toast.makeText(getApplicationContext(), 
+                				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
+                	}
                 }
             }   
         }); 
@@ -134,7 +146,7 @@ public class RegisterActivity extends Activity {
     		+ "<MPHONE>" + mEditPhone.getText().toString() + "</MPHONE>"
     		+ "</OBJECT></OBJECTS>";
     	LOGD("request body:" + mRequest.body);
-    	return mHandler.handleRequest(mUserName, "EAGLELINK001", config.getSessionId(), mRequest);
+    	return mHandler.handleRequest(mUserName, config.getFlatId(), null, mRequest);
     }
     
     private int checkInput(String username, String password, String password2) {
