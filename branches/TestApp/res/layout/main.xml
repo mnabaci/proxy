@@ -25,6 +25,16 @@
 	    android:layout_height="wrap_content"
 	    android:text="@string/txt_btn_bind"/>
 	<Button
+		android:id="@+id/post"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/txt_btn_post"/>
+	<Button
+		android:id="@+id/delete"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/txt_btn_delete"/>
+	<Button
 	    android:id="@+id/unbind"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
