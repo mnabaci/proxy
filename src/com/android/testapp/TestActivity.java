@@ -17,6 +17,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.android.proxy.IProxyService;
 import com.android.proxy.cache.Request;
@@ -30,6 +31,7 @@ public class TestActivity extends Activity {
     private static final boolean DEBUG = true;
     
     private IProxyService mService = null;
+    private boolean mIsBinding = false;
     
     private ServiceConnection mConnection = new ServiceConnection() {
         
@@ -37,32 +39,33 @@ public class TestActivity extends Activity {
             // TODO Auto-generated method stub
             LOGD("onServiceDisconnected");
             mService = null;
+            mIsBinding = false;
         }
         
         public void onServiceConnected(ComponentName name, IBinder service) {
             // TODO Auto-generated method stub
             LOGD("onServiceConnected");
             mService = IProxyService.Stub.asInterface(service);
-            Request request = new Request();
-            request.action = Request.ACTION_POST;
-            request.items = "0";
-            request.versionId = "0";
-            request.packageName = getPackageName();
-            request.body = "0";
-            try {
-				Response response = mService.postRequest(request);
-				LOGD("response:" + response.body);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				Response response = mService.getResponse(1, getPackageName());
-				LOGD("getResponse:" + response.requestId);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//            Request request = new Request();
+//            request.action = Request.ACTION_POST;
+//            request.items = "0";
+//            request.versionId = "0";
+//            request.packageName = getPackageName();
+//            request.body = "0";
+//            try {
+//				Response response = mService.postRequest(request);
+//				LOGD("response:" + response.body);
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			try {
+//				Response response = mService.getResponse(1, getPackageName());
+//				LOGD("getResponse:" + response.requestId);
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
         }
     };
     
@@ -74,6 +77,8 @@ public class TestActivity extends Activity {
         Button viewButton = (Button)findViewById(R.id.view);
         Button bindButton = (Button)findViewById(R.id.bind);
         Button unbindButton = (Button)findViewById(R.id.unbind);
+        Button postButton = (Button)findViewById(R.id.post);
+        Button deleteButton = (Button)findViewById(R.id.delete);
         if (insertButton != null) {
             insertButton.setOnClickListener(new View.OnClickListener() {
                 
@@ -100,6 +105,7 @@ public class TestActivity extends Activity {
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
                     bindService(new Intent(IProxyService.class.getName()), mConnection, Context.BIND_AUTO_CREATE);
+                    mIsBinding = true;
                 }
             });
         }
@@ -108,12 +114,75 @@ public class TestActivity extends Activity {
                 
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
-                    if (mService != null) {
+                    if (mService != null && mIsBinding) {
                         unbindService(mConnection);
+                        mIsBinding = false;
                     }
                 }
             });
         }
+        if (postButton != null) {
+        	postButton.setOnClickListener(new View.OnClickListener() {
+				
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					postRecord();
+				}
+			});
+        }
+        if (deleteButton != null) {
+        	deleteButton.setOnClickListener(new View.OnClickListener() {
+				
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					deleteRecord();
+				}
+			});
+        }
+    }
+    
+    private void postRecord() {
+    	Request request = new Request();
+    	request.action = Request.ACTION_POST;
+    	request.items = "CONTACES";
+    	request.versionId = "-1";
+    	request.packageName = getPackageName();
+    	request.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>proxy000001" +
+    		"</CONTACESID><WHETHEREXTEND>1</WHETHEREXTEND><FAMILYNAME>江</FAMILYNAME><USERNAME>test" +
+    		"</USERNAME><NICKNAME>jenny</NICKNAME><HEADPORTRAIT>pic1.jpg</HEADPORTRAIT><COMPANYNAME>" +
+    		"company</COMPANYNAME><DEPARTMENT>department</DEPARTMENT><ADDRESS>address</ADDRESS>" +
+    		"<TELEPHONEEXCHANGE>85711780</TELEPHONEEXCHANGE><EXTENSION>8301</EXTENSION><FAX></FAX>" +
+    		"<MOBILEPHONE1>13426341648</MOBILEPHONE1><MOBILEPHONE2></MOBILEPHONE2><TELEPHONE>" +
+    		"0739-8811332</TELEPHONE><EMAIL>xiaoliang.jiang@eaglelink.cn</EMAIL>" +
+    		"</OBJECT></OBJECTS>";
+    	if (mIsBinding && mService != null) {
+    		try {
+				Response response = mService.postRequest(request);
+				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    private void deleteRecord() {
+    	Request request = new Request();
+    	request.action = Request.ACTION_DELETE;
+    	request.items = "CONTACES";
+    	request.versionId = "-1";
+    	request.packageName = getPackageName();
+    	request.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>proxy000001" +
+    		"</CONTACESID></OBJECT></OBJECTS>";
+    	if (mIsBinding && mService != null) {
+    		try {
+				Response response = mService.postRequest(request);
+				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     }
     
     private void testAlarm() {

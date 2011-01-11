@@ -12,6 +12,8 @@
     <string name="txt_btn_cancel">取消</string>
     <string name="txt_btn_bind">Bind</string>
     <string name="txt_btn_unbind">Unbind</string>
+    <string name="txt_btn_post">Post an contact</string>
+    <string name="txt_btn_delete">Delete an contact</string>
     
     <string name="edit_interval_hint">interval time</string>
     <string name="edit_message_hint">message</string>
