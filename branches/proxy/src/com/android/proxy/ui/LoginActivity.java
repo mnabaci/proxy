@@ -13,12 +13,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.android.proxy.Config;
 import com.android.proxy.R;
+import com.android.proxy.cache.Request;
+import com.android.proxy.internet.RequestHandler;
+import com.android.proxy.internet.XMLResponse;
+import com.android.proxy.utils.DeviceInfo;
+import com.android.proxy.utils.Utils;
 
 public class LoginActivity extends Activity{
     private static final String TAG = "LoginActivity";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
         
     private DialogInterface.OnClickListener mNULLClickListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -31,12 +38,6 @@ public class LoginActivity extends Activity{
     private static final int DISMISS_DIALOG = 3;
     private static final int SHOW_WARNING_DIALOG = 4;
     
-    private Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            
-        }
-    };
-    
     private AlertDialog mTipsDialog;
     private String username;
     private String password;
@@ -44,11 +45,16 @@ public class LoginActivity extends Activity{
     private EditText mEditUserName;
     private EditText mEditPassword;
     
+    private RequestHandler mHandler;
+    private Request mRequest;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         resetViewComponents();
+        mHandler = new RequestHandler(Config.getInstance(getApplicationContext()).getCloudUrl());
+        mRequest = new Request(); 
     }
     
     private void resetViewComponents() {
@@ -90,6 +96,17 @@ public class LoginActivity extends Activity{
         if(!checkInput(username, password)) {
             return;
         }
+        String result = postLoginRequest();
+        LOGD("login result:" + result);
+        XMLResponse xmlInfo = RequestHandler.parseXMLResult(result);
+        if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
+        	Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
+        	Config.getInstance(getApplicationContext()).setUserId(username);
+    		finish();
+        } else {
+        	Toast.makeText(getApplicationContext(), 
+    				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
+        }
     }
     
     private boolean checkInput(String username, String password) {
@@ -107,6 +124,19 @@ public class LoginActivity extends Activity{
         username = mEditUserName.getText().toString();
         password = mEditPassword.getText().toString();
         resetViewComponents();
+    }
+    
+    private String postLoginRequest() {
+    	Config config = Config.getInstance(getApplicationContext());
+    	mRequest.action = Request.ACTION_GET;
+    	mRequest.items = "USERINFO";
+    	mRequest.versionId = "-1";
+    	mRequest.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
+    		+ "<PWD>" + Utils.Encrypt(mEditPassword.getText().toString()) + "</PWD>" 
+    		+ "<DEVICEPIM>" + config.getFlatId() + "</DEVICEPIM>"
+    		+ "<COMMPIM>" + DeviceInfo.getInstance(getApplicationContext()).getIMSI() + "</COMMPIM>"
+    		+ "</OBJECT></OBJECTS>";
+    	return mHandler.handleRequest(username, config.getFlatId(), null, mRequest);
     }
     
     @Override

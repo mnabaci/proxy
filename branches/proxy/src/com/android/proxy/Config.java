@@ -2,6 +2,8 @@ package com.android.proxy;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,6 +16,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.proxy.utils.DeviceInfo;
@@ -29,6 +32,8 @@ public class Config {
     private static final String SECTION_CONFIG = "CONFIG";
     private static final String PROPERTY_MAX_SPACE = "MAX_SPACE";
     private static final String PROPERTY_URL = "URL";
+    
+    private static final String RANDOM = "12345678912345678912345678912345";  //random
     
     public static final String PREF_USERID = "pref_userid";
     public static final String PREF_SESSIONID = "pref_sessionid";
@@ -54,6 +59,8 @@ public class Config {
     private String mSessionId;
     private Set<String> mTrustPackages;
     
+    private StringBuffer mStringBuffer;
+    
     public static Config getInstance(Context context) {
     	if (sConfig == null) {
     		sConfig = new Config(context);
@@ -76,6 +83,7 @@ public class Config {
     	mCloudUrl = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_URL, "");
     	mTrustPackages = new HashSet<String>();
     	loadTrustPackages();
+    	mStringBuffer = new StringBuffer();
     }
     
     private void release() {
@@ -87,6 +95,9 @@ public class Config {
     	mCloudUrl = null;
     	mTrustPackages.clear();
     	mTrustPackages = null;
+    	mStringBuffer.delete(0, mStringBuffer.length());
+    	mStringBuffer.setLength(0);
+    	mStringBuffer = null;
     }
     
     private void loadTrustPackages() {
@@ -139,6 +150,7 @@ public class Config {
     
     public String getFlatId() {
     	return DeviceInfo.getInstance(mContext).getIMEI();
+//    	return "eaglelink00002"; 
     }
     
     public String getSessionId() {
@@ -153,6 +165,29 @@ public class Config {
     public void setSessionId(String id) {
     	mEditor.putString(PREF_SESSIONID, id);
     	mEditor.commit();
+    }
+    
+    public String getEncryptedSessionId() {
+    	
+    	String sessionid = getSessionId();  //sessionId
+    	if (TextUtils.isEmpty(sessionid)) {
+    		return null;
+    	}
+
+        MessageDigest sha = null;
+        try {
+            sha = MessageDigest.getInstance("SHA");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        sha.update((sessionid+RANDOM).getBytes());
+        byte[] sessioid2 = sha.digest();
+        mStringBuffer.delete(0, mStringBuffer.length());
+        mStringBuffer.setLength(0);
+        for (int i = 0; i < sessioid2.length; i++) {
+            mStringBuffer.append(sessioid2[i]);
+        }
+        return mStringBuffer.toString()+RANDOM;
     }
     
     private static void LOGD(String text) {
