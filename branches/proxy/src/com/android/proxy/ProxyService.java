@@ -177,15 +177,17 @@ public class ProxyService extends Service {
     		} else {
     			LOGD("handle request, response=" + result);
     			XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
+    			LOGD("sessionId=" + xmlInfo.sessionId);
     			if (xmlInfo.sessionId == null || xmlInfo.sessionId.equals("null") 
-    					|| TextUtils.isEmpty(xmlInfo.sessionId)) {
+    					|| TextUtils.isEmpty(xmlInfo.sessionId)) {	
     				if (!fromCache) {
+    					LOGD("+++++++++++++++++++++++++++++++++");
+    					int rId = insertRequestToCache(request);
+	    				request.cacheId = rId;
 	    				Intent intent = new Intent(Intent.ACTION_MAIN);
 	    				intent.setClass(getApplicationContext(), LoginActivity.class);
 	    				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    				startActivity(intent);
-	    				int rId = insertRequestToCache(request);
-	    				request.cacheId = rId;
     				}
     				response.reset();
     				response.requestId = request.cacheId;

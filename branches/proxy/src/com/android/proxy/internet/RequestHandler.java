@@ -269,6 +269,7 @@ public class RequestHandler {
 					mMessage.remindType = mCurrentCharacters.toString();
 				}
 			}
+			mCurrentCharacters.setLength(0);
 		}
 
 		@Override
