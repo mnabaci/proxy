@@ -35,6 +35,16 @@
 	    android:layout_height="wrap_content"
 	    android:text="@string/txt_btn_delete"/>
 	<Button
+		android:id="@+id/query"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/txt_btn_query"/>
+	<Button
+		android:id="@+id/update"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/txt_btn_update"/>
+	<Button
 	    android:id="@+id/unbind"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"

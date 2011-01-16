@@ -79,6 +79,8 @@ public class TestActivity extends Activity {
         Button unbindButton = (Button)findViewById(R.id.unbind);
         Button postButton = (Button)findViewById(R.id.post);
         Button deleteButton = (Button)findViewById(R.id.delete);
+        Button queryButton = (Button)findViewById(R.id.query);
+        Button updateButton = (Button)findViewById(R.id.update);
         if (insertButton != null) {
             insertButton.setOnClickListener(new View.OnClickListener() {
                 
@@ -139,6 +141,24 @@ public class TestActivity extends Activity {
 				}
 			});
         }
+        if (queryButton != null) {
+        	queryButton.setOnClickListener(new View.OnClickListener() {
+				
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					queryRecord();
+				}
+			});
+        }
+        if (updateButton != null) {
+        	updateButton.setOnClickListener(new View.OnClickListener() {
+				
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					updateRecord();
+				}
+			});
+        }
     }
     
     private void postRecord() {
@@ -174,6 +194,50 @@ public class TestActivity extends Activity {
     	request.packageName = getPackageName();
     	request.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>proxy000001" +
     		"</CONTACESID></OBJECT></OBJECTS>";
+    	if (mIsBinding && mService != null) {
+    		try {
+				Response response = mService.postRequest(request);
+				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    private void queryRecord() {
+    	Request request = new Request();
+    	request.action = Request.ACTION_GET;
+    	request.items = "CONTACES";
+    	request.versionId = "-1";
+    	request.packageName = getPackageName();
+    	request.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>proxy000001"
+    		+"</CONTACESID></OBJECT></OBJECTS>";
+    	if (mIsBinding && mService != null) {
+    		try {
+				Response response = mService.postRequest(request);
+				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    private void updateRecord() {
+    	Request request = new Request();
+    	request.action = Request.ACTION_PUT;
+    	request.items = "CONTACES";
+    	request.versionId = "-1";
+    	request.packageName = getPackageName();
+    	request.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>proxy000001" +
+		"</CONTACESID><WHETHEREXTEND>1</WHETHEREXTEND><FAMILYNAME>Fang</FAMILYNAME><USERNAME>test" +
+		"</USERNAME><NICKNAME>kevin</NICKNAME><HEADPORTRAIT>pic1.jpg</HEADPORTRAIT><COMPANYNAME>" +
+		"company</COMPANYNAME><DEPARTMENT>department</DEPARTMENT><ADDRESS>address</ADDRESS>" +
+		"<TELEPHONEEXCHANGE>85711780</TELEPHONEEXCHANGE><EXTENSION>8301</EXTENSION><FAX></FAX>" +
+		"<MOBILEPHONE1>13426341648</MOBILEPHONE1><MOBILEPHONE2></MOBILEPHONE2><TELEPHONE>" +
+		"0739-8811332</TELEPHONE><EMAIL>xiaoliang.jiang@eaglelink.cn</EMAIL>" +
+		"</OBJECT></OBJECTS>";
     	if (mIsBinding && mService != null) {
     		try {
 				Response response = mService.postRequest(request);
