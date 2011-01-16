@@ -33,6 +33,7 @@ import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.ui.LoginActivity;
 import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
+import com.android.proxy.warn.WarnKlaxon;
 import com.android.proxy.warn.WarnProvider;
 
 public class ProxyService extends Service {
@@ -129,6 +130,7 @@ public class ProxyService extends Service {
         mRequest = new Request();
         mContentValues = new ContentValues();
         mRequestHandler = new RequestHandler(mConfig.getCloudUrl());
+        launchHeartBeatService();
     }
     
     private synchronized void handleRequestsInCache() {
@@ -203,11 +205,22 @@ public class ProxyService extends Service {
     	}
 		return;
     }
+    
+    private void launchHeartBeatService() {
+    	Intent intent = new Intent(HeartBeatService.ACTION);
+    	startService(intent);
+    }
+    
+    private void stopHeartBeatService() {
+    	Intent intent = new Intent(HeartBeatService.ACTION);
+    	stopService(intent);
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         getContentResolver().unregisterContentObserver(mSpaceObserver);
+        stopHeartBeatService();
         LOGD("onDestroy");
     }
 
