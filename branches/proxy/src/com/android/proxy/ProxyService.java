@@ -30,6 +30,7 @@ import com.android.proxy.cache.Response;
 import com.android.proxy.cache.ResponseProvider;
 import com.android.proxy.internet.RequestHandler;
 import com.android.proxy.internet.XMLResponse;
+import com.android.proxy.ui.LoginActivity;
 import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.warn.WarnProvider;
@@ -54,6 +55,11 @@ public class ProxyService extends Service {
     private static final int RESPONSE_RID_COL = 3;
     private static final int RESPONSE_TIME_COL = 4;
     
+    private static final String TIMEOUT_RESPONSE = "<?xml version='1.0' encoding='UTF-8'?>"+
+    			"<RESPONSE><RESULT><RESULTCODE>-1</RESULTCODE>"+
+    			"<ERRORDESC>sessionId illegal, re login please.</ERRORDESC></RESULT>"+
+    			"<SESSIONID></SESSIONID></RESPONSE>";
+    
     private static final String[] REQUEST_PROJECTION = {RequestProvider._ID, RequestProvider.ACTION,
     	RequestProvider.ITEMS, RequestProvider.BODY, RequestProvider.OWNER, RequestProvider.VERSION_ID,
     	RequestProvider.RESPONSE};
@@ -73,9 +79,7 @@ public class ProxyService extends Service {
     private Response mResponse;
     private Request mRequest;
     private ContentValues mContentValues;
-    private Vector<Request> mRequestQueue;
     private RequestHandler mRequestHandler;
-    private boolean mIsWorking = false;
     
     private final IProxyService.Stub mBinder = new IProxyService.Stub() {
         
@@ -88,8 +92,10 @@ public class ProxyService extends Service {
 		public Response postRequest(Request request) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("postRequest," + request.action);
-			handleRequest(request, false, mResponse);
-			return mResponse;
+			Response response = new Response();
+			handleRequest(request, false, response);
+			LOGD("after post request");
+			return response;
 		}
 
 		public Response getResponse(int id, String packageName) throws RemoteException {
@@ -122,9 +128,7 @@ public class ProxyService extends Service {
         mResponse = new Response();
         mRequest = new Request();
         mContentValues = new ContentValues();
-        mRequestQueue = new Vector<Request>();
         mRequestHandler = new RequestHandler(mConfig.getCloudUrl());
-        mIsWorking = false;
     }
     
     private synchronized void handleRequestsInCache() {
@@ -156,8 +160,8 @@ public class ProxyService extends Service {
 				int rId = insertRequestToCache(request);
     			request.cacheId = rId;
 			}
-    		mResponse.reset();
-    		mResponse.requestId = request.cacheId;
+    		response.reset();
+    		response.requestId = request.cacheId;
     	} else {
     		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getEncryptedSessionId(), 
     				request);
@@ -166,51 +170,38 @@ public class ProxyService extends Service {
     				int rId = insertRequestToCache(request);
     				request.cacheId = rId;
     			}
-        		mResponse.reset();
-        		mResponse.requestId = request.cacheId;
+        		response.reset();
+        		response.requestId = request.cacheId;
     		} else {
     			LOGD("handle request, response=" + result);
-    			mResponse.body = result;
-    			mResponse.requestId = Response.REAL_RESPONSE;
-    			mResponse.packageName = request.packageName;
-    			mResponse.time = System.currentTimeMillis();
-    			XMLResponse xmlInfo = RequestHandler.parseXMLResult(result);
-    			if (xmlInfo.sessionId.equals("null")) {
-    				
+    			XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
+    			if (xmlInfo.sessionId == null || xmlInfo.sessionId.equals("null") 
+    					|| TextUtils.isEmpty(xmlInfo.sessionId)) {
+    				if (!fromCache) {
+	    				Intent intent = new Intent(Intent.ACTION_MAIN);
+	    				intent.setClass(getApplicationContext(), LoginActivity.class);
+	    				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    				startActivity(intent);
+	    				int rId = insertRequestToCache(request);
+	    				request.cacheId = rId;
+    				}
+    				response.reset();
+    				response.requestId = request.cacheId;
     			} else {
+    				response.body = result;
+        			response.requestId = Response.REAL_RESPONSE;
+        			response.packageName = request.packageName;
+        			response.time = System.currentTimeMillis();
     				mConfig.setSessionId(xmlInfo.sessionId);
-    			}
-    			if (fromCache) {
-    				int responseId = insertResponseToCache(mResponse);
-    				setRequestHandledInCache(request.cacheId, responseId);
+	    			if (fromCache) {
+	    				response.requestId = request.cacheId;
+	    				int responseId = insertResponseToCache(response);
+	    				setRequestHandledInCache(request.cacheId, responseId);
+	    			}
     			}
     		}
     	}
 		return;
-    }
-    
-    private synchronized void handleRequestQueue() {
-    	while (!mRequestQueue.isEmpty()) {
-    		Request request = mRequestQueue.get(0);
-    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getEncryptedSessionId(), 
-    				request);
-    		if (!TextUtils.isEmpty(result)) {
-    			mResponse.body = result;
-    			mResponse.requestId = request.cacheId;
-    			mResponse.packageName = request.packageName;
-    			mResponse.time = System.currentTimeMillis();
-    			int responseId = insertResponseToCache(mResponse);
-    			setRequestHandledInCache(request.cacheId, responseId);
-    		}
-    		mRequestQueue.remove(0);
-    	}
-    }
-    
-    private synchronized void startWorking() {
-    	if (mIsWorking) return;
-    	mIsWorking = true;
-    	handleRequestQueue();
-    	mIsWorking = false;
     }
 
     @Override
@@ -231,7 +222,7 @@ public class ProxyService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // TODO Auto-generated method stub
     	LOGD("onStartCommand,");
-    	if (intent.getIntExtra(PROXY_INTENT_TYPE, -1) == PROXY_INTENT_TYPE_POSTREQUESTS) {
+    	if (intent != null && intent.getIntExtra(PROXY_INTENT_TYPE, -1) == PROXY_INTENT_TYPE_POSTREQUESTS) {
     		handleRequestsInCache();
     	}
         return super.onStartCommand(intent, flags, startId);
@@ -289,6 +280,11 @@ public class ProxyService extends Service {
     	getContentResolver().delete(deleteUri, null, null);
     }
     
+    private void deleteResponseFromCacheWithRequestId(int requestId) {
+    	getContentResolver().delete(ResponseProvider.CONTENT_URI, 
+    			ResponseProvider.REQUEST_ID + " = " + requestId, null);
+    }
+    
     private Response getResponseFromCache(int requestId) {
     	Cursor cursor = getContentResolver().query(ResponseProvider.CONTENT_URI, 
     			RESPONSE_PROJECTION, ResponseProvider.REQUEST_ID + " = " + requestId, null, null);
@@ -299,6 +295,8 @@ public class ProxyService extends Service {
     		mResponse.body = cursor.getString(RESPONSE_BODY_COL);
     		mResponse.packageName = cursor.getString(RESPONSE_OWNER_COL);
     		mResponse.time = cursor.getLong(RESPONSE_TIME_COL);
+    		deleteRequestFromCache(requestId);
+    		deleteResponseFromCacheWithRequestId(requestId);
     	} else {
     		mResponse.reset();
     		mResponse.requestId = requestId;

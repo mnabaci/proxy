@@ -15,6 +15,9 @@
         <provider android:name="com.android.proxy.cache.ResponseProvider"
             android:authorities="com.android.proxy.cache.response"
             android:exported="false"/>
+        <provider android:name="com.android.proxy.cache.MessageProvider"
+            android:authorities="com.android.proxy.cache.message"
+            android:exported="true"/>
         <service android:name="com.android.proxy.warn.WarnKlaxon">
             <intent-filter>
                 <action android:name="com.android.proxy.warn.ALARM_ALERT" />
@@ -47,6 +50,31 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.proxy.ui.CacheTestActivity"
+          android:label="@string/title_cachetest">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.proxy.ui.RequestActivity"
+          android:label="@string/title_request_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.proxy.ui.ResponseActivity"
+          android:label="@string/title_response_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.proxy.ui.MessageActivity"
+          android:label="@string/title_message_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
         <receiver android:name="com.android.proxy.warn.WarnReceiver"/>   
