@@ -56,6 +56,7 @@ public class DeviceInfo {
         if (myIMSI == null) {
             myIMSI = "310260000000000";
         }
+        Log.d("DeviceInfo", "imsi:" + myIMSI);
         return myIMSI;
     }
     

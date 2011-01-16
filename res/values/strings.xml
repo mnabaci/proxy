@@ -23,8 +23,15 @@
     <string name="txt_first_name">名</string>
     <string name="txt_illegal_username_password">用户名或密码不符合规范</string>
     <string name="txt_diff_password">两次密码不一致</string>
+    <string name="txt_btn_view_request">查看缓存Request</string>
+    <string name="txt_btn_view_response">查看缓存Response</string>
+    <string name="txt_btn_view_messages">查看Messages</string>
     
     <string name="title_login">登录</string>
     <string name="title_register">注册</string>
     <string name="title_webservice">WebserviceTest</string>
+    <string name="title_cachetest">CacheTest</string>
+    <string name="title_request_activity">RequestActivity</string>
+    <string name="title_response_activity">ResponseActivity</string>
+    <string name="title_message_activity">MessageActivity</string>
 </resources>

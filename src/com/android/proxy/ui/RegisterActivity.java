@@ -3,6 +3,7 @@ package com.android.proxy.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.android.proxy.Config;
+import com.android.proxy.ProxyService;
 import com.android.proxy.R;
 import com.android.proxy.cache.Request;
 import com.android.proxy.internet.RequestHandler;
@@ -112,10 +114,11 @@ public class RegisterActivity extends Activity {
                 } else {
                 	String result = postRegisterRequest();
                 	LOGD("result:" + result);
-                	XMLResponse xmlInfo = RequestHandler.parseXMLResult(result);
+                	XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(),result);
                 	if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
                 		Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
                 		Config.getInstance(getApplicationContext()).setUserId(mUserName);
+                		postRequestInCache();
                 		finish();
                 	} else {
                 		Toast.makeText(getApplicationContext(), 
@@ -130,6 +133,13 @@ public class RegisterActivity extends Activity {
             }
             
         });
+    }
+    
+    private void postRequestInCache() {
+    	Intent i = new Intent();
+		i.setClass(getApplicationContext(), ProxyService.class);
+		i.putExtra(ProxyService.PROXY_INTENT_TYPE, ProxyService.PROXY_INTENT_TYPE_POSTREQUESTS);
+		startService(i);
     }
     
     private String postRegisterRequest() {

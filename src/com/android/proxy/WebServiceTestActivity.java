@@ -6,6 +6,8 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import com.android.proxy.internet.RequestHandler;
+import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.utils.Utils;
 
 import android.app.Activity;
@@ -15,7 +17,7 @@ import android.util.Log;
 public class WebServiceTestActivity extends Activity {
 	 /** Called when the activity is first created. */
 
-	private static final String METHOD_NAME = "post";
+	private static final String METHOD_NAME = "get";
 	private static final String NAMESPACE = "http://ext.service.eaglelink.cn/";
 	 
 	private static final String SOAP_ACTION = "CloudService";
@@ -31,13 +33,13 @@ public class WebServiceTestActivity extends Activity {
 			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 			
 			request.addProperty("arg0", "testkevin1");
-			request.addProperty("arg1", "EAGLELINK001");
-			request.addProperty("arg2", "eaglelink888");
+			request.addProperty("arg1", Config.getInstance(getApplicationContext()).getFlatId());
+			request.addProperty("arg2", Config.getInstance(getApplicationContext()).getEncryptedSessionId());
 			request.addProperty("arg3", "-1");
-			request.addProperty("arg4", "CONTACES");
-			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT><CONTACESID>eaglelink000004" +
-"</CONTACESID><WHETHEREXTEND>1</WHETHEREXTEND><FAMILYNAME>a</FAMILYNAME><USERNAME>b" +
-"</USERNAME><NICKNAME>jenny</NICKNAME></OBJECT></OBJECTS>");
+			request.addProperty("arg4", "IAMHERE");
+			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
+					+ "<DEVICEPIM>" + Config.getInstance(getApplicationContext()).getFlatId() 
+					+ "</DEVICEPIM>" + "</OBJECT></OBJECTS>");
 			Log.d("WebServiceActivity", "request:" + request.toString());
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER10);
@@ -54,6 +56,8 @@ public class WebServiceTestActivity extends Activity {
 			Object result = envelope.getResponse();
 //			String [] str = (String [])result;
 			Log.d("result",result.toString());
+			XMLResponse response = RequestHandler.parseXMLResult(getApplicationContext(), result.toString());
+			response.print();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

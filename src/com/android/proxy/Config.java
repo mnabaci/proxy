@@ -32,6 +32,7 @@ public class Config {
     private static final String SECTION_CONFIG = "CONFIG";
     private static final String PROPERTY_MAX_SPACE = "MAX_SPACE";
     private static final String PROPERTY_URL = "URL";
+    private static final String PROPERTY_FLATID = "FLAT_ID";
     
     private static final String RANDOM = "12345678912345678912345678912345";  //random
     
@@ -81,6 +82,7 @@ public class Config {
     	mConfigFile = new INIFile(mConfigFilePath);
     	mMaxSpace = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, PROPERTY_MAX_SPACE, VAL_MAX_SPACE);
     	mCloudUrl = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_URL, "");
+    	mFlatId = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_FLATID, "");
     	mTrustPackages = new HashSet<String>();
     	loadTrustPackages();
     	mStringBuffer = new StringBuffer();
@@ -149,8 +151,8 @@ public class Config {
     }
     
     public String getFlatId() {
-    	return DeviceInfo.getInstance(mContext).getIMEI();
-//    	return "eaglelink00002"; 
+//    	return DeviceInfo.getInstance(mContext).getIMEI();
+    	return mFlatId; 
     }
     
     public String getSessionId() {

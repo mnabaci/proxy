@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.proxy.Config;
+import com.android.proxy.ProxyService;
 import com.android.proxy.R;
 import com.android.proxy.cache.Request;
 import com.android.proxy.internet.RequestHandler;
@@ -98,15 +99,23 @@ public class LoginActivity extends Activity{
         }
         String result = postLoginRequest();
         LOGD("login result:" + result);
-        XMLResponse xmlInfo = RequestHandler.parseXMLResult(result);
+        XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
         if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
         	Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
         	Config.getInstance(getApplicationContext()).setUserId(username);
+        	postRequestInCache();
     		finish();
         } else {
         	Toast.makeText(getApplicationContext(), 
     				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
         }
+    }
+    
+    private void postRequestInCache() {
+    	Intent i = new Intent();
+		i.setClass(getApplicationContext(), ProxyService.class);
+		i.putExtra(ProxyService.PROXY_INTENT_TYPE, ProxyService.PROXY_INTENT_TYPE_POSTREQUESTS);
+		startService(i);
     }
     
     private boolean checkInput(String username, String password) {
