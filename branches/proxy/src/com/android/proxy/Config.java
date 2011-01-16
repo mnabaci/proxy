@@ -29,10 +29,14 @@ public class Config {
 	private static final String TAG = "Config";
     private final static boolean DEBUG = true;
     
+    private static final long DEFAULT_VALUE_HEARTBEAT_INTERVAL = 5*60*1000;
+    private static final long DEFAULT_VALUE_MAX_SPACE = 1000000;
+    
     private static final String SECTION_CONFIG = "CONFIG";
     private static final String PROPERTY_MAX_SPACE = "MAX_SPACE";
     private static final String PROPERTY_URL = "URL";
     private static final String PROPERTY_FLATID = "FLAT_ID";
+    private static final String PROPERTY_HEARTBEAT_INTERVAL = "HEARTBEAT_INTERVAL";
     
     private static final String RANDOM = "12345678912345678912345678912345";  //random
     
@@ -41,8 +45,6 @@ public class Config {
     public static final String EMPTY_STRING = "";
     
     private static final String TAG_PACKAGE = "package";
-    
-    private static final long VAL_MAX_SPACE = 1000000;
         
     private static Config sConfig = null;
     private String mConfigFilePath;
@@ -54,6 +56,7 @@ public class Config {
     
     private long mMaxSpace;
     private String mCloudUrl;
+    private long mHeartBeatInterval;
     
     private String mUserId;
     private String mFlatId;
@@ -80,9 +83,11 @@ public class Config {
         mEditor = mSharedPreferences.edit();
     	mConfigFilePath = Environment.getInstance(mContext).CONFIG_FILE_PATH;
     	mConfigFile = new INIFile(mConfigFilePath);
-    	mMaxSpace = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, PROPERTY_MAX_SPACE, VAL_MAX_SPACE);
+    	mMaxSpace = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, PROPERTY_MAX_SPACE, DEFAULT_VALUE_MAX_SPACE);
     	mCloudUrl = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_URL, "");
     	mFlatId = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_FLATID, "");
+    	mHeartBeatInterval = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, 
+    			PROPERTY_HEARTBEAT_INTERVAL, DEFAULT_VALUE_HEARTBEAT_INTERVAL);
     	mTrustPackages = new HashSet<String>();
     	loadTrustPackages();
     	mStringBuffer = new StringBuffer();
@@ -157,6 +162,10 @@ public class Config {
     
     public String getSessionId() {
     	return mSharedPreferences.getString(PREF_SESSIONID, EMPTY_STRING);
+    }
+    
+    public long getHeartBeatInterval() {
+    	return mHeartBeatInterval;
     }
     
     public void setUserId(String id) {

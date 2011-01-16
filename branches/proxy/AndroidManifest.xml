@@ -23,6 +23,11 @@
                 <action android:name="com.android.proxy.warn.ALARM_ALERT" />
             </intent-filter>
         </service>
+        <service android:name="com.android.proxy.HeartBeatService">
+            <intent-filter>
+                <action android:name="com.android.proxy.heartbeat" />
+            </intent-filter>
+        </service>
         <service android:name="ProxyService">
             <intent-filter>
                 <action android:name="com.android.proxy.PROXY_SERVICE"/>
