@@ -36,10 +36,11 @@ public class WebServiceTestActivity extends Activity {
 			request.addProperty("arg1", Config.getInstance(getApplicationContext()).getFlatId());
 			request.addProperty("arg2", Config.getInstance(getApplicationContext()).getEncryptedSessionId());
 			request.addProperty("arg3", "-1");
-			request.addProperty("arg4", "IAMHERE");
+			request.addProperty("arg4", "VERSION");
 			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
 					+ "<DEVICEPIM>" + Config.getInstance(getApplicationContext()).getFlatId() 
-					+ "</DEVICEPIM>" + "</OBJECT></OBJECTS>");
+					+ "</DEVICEPIM>" + "<SESSIONID>" + Config.getInstance(getApplicationContext()).getEncryptedSessionId() 
+					+ "</SESSIONID>" + "<PROGNAME>" + "Proxy" + "</PROGNAME>" + "</OBJECT></OBJECTS>");
 			Log.d("WebServiceActivity", "request:" + request.toString());
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER10);
