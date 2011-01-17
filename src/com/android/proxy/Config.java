@@ -143,6 +143,10 @@ public class Config {
         }
     }
     
+    public boolean isTrustedPackage(String packageName) {
+    	return (mTrustPackages != null && mTrustPackages.contains(packageName));
+    }
+    
     public long getMaxSpace() {
         return mMaxSpace;
     }

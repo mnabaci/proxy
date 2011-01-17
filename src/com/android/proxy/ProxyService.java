@@ -33,6 +33,7 @@ import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.ui.LoginActivity;
 import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
+import com.android.proxy.utils.Utils;
 import com.android.proxy.warn.WarnKlaxon;
 import com.android.proxy.warn.WarnProvider;
 
@@ -41,6 +42,8 @@ public class ProxyService extends Service {
     private static final String TAG = "ProxyService";
     private final static boolean DEBUG = true;
     
+    public static final String INTENT_PROPERTY_RANDOM = "RANDOM";
+    public static final String INTENT_PROPERTY_AUTHORITY = "AUTHORITY";
     public static final String PROXY_INTENT_TYPE = "type";
     
     public static final int PROXY_INTENT_TYPE_POSTREQUESTS = 1;
@@ -102,7 +105,7 @@ public class ProxyService extends Service {
 		public Response getResponse(int id, String packageName) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("getResponse," + id);
-			return getResponseFromCache(id);
+			return getResponseFromCache(id, packageName);
 		}
     };
 
@@ -110,7 +113,26 @@ public class ProxyService extends Service {
     public IBinder onBind(Intent arg0) {
         // TODO Auto-generated method stub
         LOGD("onBind,");
-        return mBinder;
+        if (verifyBind(arg0)) {
+        	return mBinder;
+        } else {
+        	return null;
+        }
+    }
+    
+    private boolean verifyBind(Intent intent) {
+    	String random = intent.getStringExtra(INTENT_PROPERTY_RANDOM);
+    	String authority = intent.getStringExtra(INTENT_PROPERTY_AUTHORITY);
+    	if(TextUtils.isEmpty(random) || TextUtils.isEmpty(authority)) {
+    		return false;
+    	}
+    	String decrypt = Utils.Decrypt(authority, Utils.TRUST_KEY);
+    	int index = decrypt.lastIndexOf(random);
+    	if (index > 0) {
+    		String packageName = decrypt.substring(0, index);
+    		return mConfig.isTrustedPackage(packageName);
+    	}
+    	return false;
     }
 
     @Override
@@ -300,9 +322,10 @@ public class ProxyService extends Service {
     			ResponseProvider.REQUEST_ID + " = " + requestId, null);
     }
     
-    private Response getResponseFromCache(int requestId) {
+    private Response getResponseFromCache(int requestId, String packageName) {
     	Cursor cursor = getContentResolver().query(ResponseProvider.CONTENT_URI, 
-    			RESPONSE_PROJECTION, ResponseProvider.REQUEST_ID + " = " + requestId, null, null);
+    			RESPONSE_PROJECTION, ResponseProvider.REQUEST_ID + " = " + requestId 
+    			+ " AND " + ResponseProvider.OWNER + " = '" + packageName + "'", null, null);
     	if (cursor.getCount() > 0) {
     		cursor.moveToFirst();
     		mResponse.reset();
