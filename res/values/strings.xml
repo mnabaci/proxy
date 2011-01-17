@@ -5,6 +5,7 @@
     
     <string name="EditWarnActivity">EditWarn</string>
     <string name="ViewWarnActivity">ViewWarn</string>
+    <string name="PostRequestActivity">PostRequest</string>
     
     <string name="txt_btn_insert">Insert</string>
     <string name="txt_btn_view">View</string>
@@ -13,11 +14,17 @@
     <string name="txt_btn_bind">Bind</string>
     <string name="txt_btn_unbind">Unbind</string>
     <string name="txt_btn_post">Post an contact</string>
+    <string name="txt_btn_postrequest">Post Request</string>
     <string name="txt_btn_delete">Delete an contact</string>
     <string name="txt_btn_query">Query an contact</string>
     <string name="txt_btn_update">Update an contact</string>
+    <string name="txt_action">Request Action</string>
+    <string name="txt_contactid">Contact ID</string>
+    <string name="txt_mobile">Mobile phone</string>
     
     <string name="edit_interval_hint">interval time</string>
     <string name="edit_message_hint">message</string>
     <string name="edit_title_hint">title</string>
+    <string name="cancel">取消</string>
+    <string name="btn_confirm">确定</string>
 </resources>

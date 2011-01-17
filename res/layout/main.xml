@@ -25,11 +25,11 @@
 	    android:layout_height="wrap_content"
 	    android:text="@string/txt_btn_bind"/>
 	<Button
-		android:id="@+id/post"
+		android:id="@+id/postrequest"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:text="@string/txt_btn_post"/>
-	<Button
+	    android:text="@string/txt_btn_postrequest"/>
+	<!--Button
 		android:id="@+id/delete"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
 		android:id="@+id/update"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:text="@string/txt_btn_update"/>
+	    android:text="@string/txt_btn_update"/-->
 	<Button
 	    android:id="@+id/unbind"
 	    android:layout_width="fill_parent"

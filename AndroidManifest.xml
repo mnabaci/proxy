@@ -30,6 +30,14 @@
             </intent-filter>
         </activity>
         
+        <activity android:name=".PostRequestActivity"
+                  android:label="@string/PostRequestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        
         <receiver android:name=".TestReceiver" />
 
     </application>
