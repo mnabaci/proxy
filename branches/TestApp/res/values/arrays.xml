@@ -12,4 +12,11 @@
         <item>dialog</item>
         <item>notify</item> 
     </string-array>
+    <string-array name="action_type">
+        <item>GET</item>
+        <item>POST</item>
+        <item>DELETE</item>
+        <item>PUT</item> 
+        <item>GetCacheResponse</item>
+    </string-array>
 </resources>

@@ -30,10 +30,10 @@ public class TestActivity extends Activity {
     private static final String TAG = "TestActivity";
     private static final boolean DEBUG = true;
     
-    private IProxyService mService = null;
-    private boolean mIsBinding = false;
+    public static IProxyService mService = null;
+    public static boolean mIsBinding = false;
     
-    private ServiceConnection mConnection = new ServiceConnection() {
+    public static ServiceConnection mConnection = new ServiceConnection() {
         
         public void onServiceDisconnected(ComponentName name) {
             // TODO Auto-generated method stub
@@ -77,10 +77,11 @@ public class TestActivity extends Activity {
         Button viewButton = (Button)findViewById(R.id.view);
         Button bindButton = (Button)findViewById(R.id.bind);
         Button unbindButton = (Button)findViewById(R.id.unbind);
-        Button postButton = (Button)findViewById(R.id.post);
-        Button deleteButton = (Button)findViewById(R.id.delete);
-        Button queryButton = (Button)findViewById(R.id.query);
-        Button updateButton = (Button)findViewById(R.id.update);
+        Button postButton = null;//(Button)findViewById(R.id.post);
+        Button deleteButton = null;//(Button)findViewById(R.id.delete);
+        Button queryButton = null;//(Button)findViewById(R.id.query);
+        Button updateButton = null;//(Button)findViewById(R.id.update);
+        Button postRequestButton = (Button)findViewById(R.id.postrequest);
         if (insertButton != null) {
             insertButton.setOnClickListener(new View.OnClickListener() {
                 
@@ -101,12 +102,27 @@ public class TestActivity extends Activity {
                 }
             });
         }
+        if (postRequestButton != null) {
+            postRequestButton.setOnClickListener(new View.OnClickListener() {
+                
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setClass(getApplicationContext(), PostRequestActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
         if (bindButton != null) {
             bindButton.setOnClickListener(new View.OnClickListener() {
                 
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
-                    bindService(new Intent(IProxyService.class.getName()), mConnection, Context.BIND_AUTO_CREATE);
+                	Intent intent = new Intent(IProxyService.class.getName());
+                	String random = "random";
+                	intent.putExtra("RANDOM", random);
+                	String authority = Utils.Encrypt(getPackageName()+random, Utils.TRUST_KEY);
+                	intent.putExtra("AUTHORITY", authority);
+                    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
                     mIsBinding = true;
                 }
             });
