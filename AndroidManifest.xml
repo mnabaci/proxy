@@ -36,14 +36,16 @@
         </service>
         <activity android:name="com.android.proxy.ui.RegisterActivity"
           android:label="@string/title_register" 
-          android:configChanges="keyboardHidden|orientation">
+          android:configChanges="keyboardHidden|orientation"
+          android:theme="@android:style/Theme.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
         <activity android:name="com.android.proxy.ui.LoginActivity"
           android:label="@string/title_login" 
-          android:configChanges="keyboardHidden|orientation">
+          android:configChanges="keyboardHidden|orientation"
+          android:theme="@android:style/Theme.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
