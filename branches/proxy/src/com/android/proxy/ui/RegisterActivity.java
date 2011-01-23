@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -73,6 +74,8 @@ public class RegisterActivity extends Activity {
     }
     
     private void resetViewComponents() {
+    	requestWindowFeature(Window.FEATURE_NO_TITLE);
+    	getWindow().setBackgroundDrawableResource(R.drawable.register_bg);
         setContentView(R.layout.register);
         
         mEditUserName = (EditText)findViewById(R.id.reg_username);
@@ -223,7 +226,7 @@ public class RegisterActivity extends Activity {
         mPhoneNumber = mEditPhone.getText().toString();
         mLastName = mEditLastName.getText().toString();
         mFirstName = mEditFirstName.getText().toString();
-        resetViewComponents();
+//        resetViewComponents();
     }
     
     private void LOGD(String text) {

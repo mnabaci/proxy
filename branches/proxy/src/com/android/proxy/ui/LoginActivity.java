@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,6 +60,8 @@ public class LoginActivity extends Activity{
     }
     
     private void resetViewComponents() {
+    	getWindow().requestFeature(Window.FEATURE_NO_TITLE); 
+    	getWindow().setBackgroundDrawableResource(R.drawable.login_bg);
         setContentView(R.layout.login);
         
         mEditUserName = (EditText)findViewById(R.id.log_username);
@@ -132,7 +135,7 @@ public class LoginActivity extends Activity{
         super.onConfigurationChanged(newConfig);
         username = mEditUserName.getText().toString();
         password = mEditPassword.getText().toString();
-        resetViewComponents();
+//        resetViewComponents();
     }
     
     private String postLoginRequest() {
