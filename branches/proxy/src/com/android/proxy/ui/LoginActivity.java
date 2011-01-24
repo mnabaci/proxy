@@ -2,12 +2,14 @@ package com.android.proxy.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -28,6 +30,9 @@ import com.android.proxy.utils.Utils;
 public class LoginActivity extends Activity{
     private static final String TAG = "LoginActivity";
     private static final boolean DEBUG = true;
+    
+    private static final int DIALOG_NETWORK_DISABLE = 1;
+    private static final int DIALOG_LOGIN_FAULT = 2;
         
     private DialogInterface.OnClickListener mNULLClickListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -102,6 +107,10 @@ public class LoginActivity extends Activity{
         }
         String result = postLoginRequest();
         LOGD("login result:" + result);
+        if (TextUtils.isEmpty(result)) {
+        	showDialog(DIALOG_NETWORK_DISABLE);
+        	return;
+        }
         XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
         if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
         	Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
@@ -111,6 +120,7 @@ public class LoginActivity extends Activity{
         } else {
         	Toast.makeText(getApplicationContext(), 
     				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
+        	showDialog(DIALOG_LOGIN_FAULT);
         }
     }
     
@@ -169,4 +179,26 @@ public class LoginActivity extends Activity{
             Log.d(TAG, text);
         }
     }
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		// TODO Auto-generated method stub
+		return new AlertDialog.Builder(this).create();
+	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		// TODO Auto-generated method stub
+		super.onPrepareDialog(id, dialog);
+		switch(id) {
+		case DIALOG_NETWORK_DISABLE:
+			dialog.getWindow().setBackgroundDrawableResource(R.drawable.network_disable);
+			dialog.setCanceledOnTouchOutside(true);
+			break;
+		case DIALOG_LOGIN_FAULT:
+			dialog.getWindow().setBackgroundDrawableResource(R.drawable.login_fault);
+			dialog.setCanceledOnTouchOutside(true);
+			break;
+		}
+	}
 }
