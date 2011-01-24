@@ -12,6 +12,7 @@ import com.android.proxy.utils.Utils;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class WebServiceTestActivity extends Activity {
@@ -32,15 +33,19 @@ public class WebServiceTestActivity extends Activity {
 		try {
 			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 			
-			request.addProperty("arg0", "testkevin1");
+			request.addProperty("arg0", Config.getInstance(getApplicationContext()).getUserId());
 			request.addProperty("arg1", Config.getInstance(getApplicationContext()).getFlatId());
 			request.addProperty("arg2", Config.getInstance(getApplicationContext()).getEncryptedSessionId());
-			request.addProperty("arg3", "-1");
+			request.addProperty("arg3", "1");
 			request.addProperty("arg4", "VERSION");
 			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
-					+ "<DEVICEPIM>" + Config.getInstance(getApplicationContext()).getFlatId() 
+					+ "<DEVICEPIM>" + "0000000000003" 
 					+ "</DEVICEPIM>" + "<SESSIONID>" + Config.getInstance(getApplicationContext()).getEncryptedSessionId() 
-					+ "</SESSIONID>" + "<PROGNAME>" + "Proxy" + "</PROGNAME>" + "</OBJECT></OBJECTS>");
+					+ "</SESSIONID>" + "<PROGNAME>" + "AndroidProxy" + "</PROGNAME>" 
+					+ "<PROGID>AndroidProxy</PROGID>" + "<PROGOS>Android-2.2</PROGOS>"
+					+ "<DEVICETYPE>EagleLinkFlat</DEVICETYPE>"
+					+ "<PROGVERSION>1.0</PROGVERSION>"
+					+ "</OBJECT></OBJECTS>");
 			Log.d("WebServiceActivity", "request:" + request.toString());
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER10);
@@ -58,6 +63,9 @@ public class WebServiceTestActivity extends Activity {
 //			String [] str = (String [])result;
 			Log.d("result",result.toString());
 			XMLResponse response = RequestHandler.parseXMLResult(getApplicationContext(), result.toString());
+			if (!TextUtils.isEmpty(response.sessionId)) {
+				Config.getInstance(getApplicationContext()).setSessionId(response.sessionId);
+			}
 			response.print();
 		} catch (Exception e) {
 			e.printStackTrace();
