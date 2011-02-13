@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.android.proxy.Config;
 import com.android.proxy.ProxyService;
 import com.android.proxy.R;
+import com.android.proxy.UpgradeService;
 import com.android.proxy.cache.Request;
 import com.android.proxy.internet.RequestHandler;
 import com.android.proxy.internet.XMLResponse;
@@ -54,6 +55,7 @@ public class LoginActivity extends Activity{
     
     private RequestHandler mHandler;
     private Request mRequest;
+    private XMLResponse mXMLResponse;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,19 +110,21 @@ public class LoginActivity extends Activity{
         String result = postLoginRequest();
         LOGD("login result:" + result);
         if (TextUtils.isEmpty(result)) {
-        	showDialog(DIALOG_NETWORK_DISABLE);
+//        	showDialog(DIALOG_NETWORK_DISABLE);
         	return;
         }
         XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
+        mXMLResponse = xmlInfo;
         if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
         	Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
         	Config.getInstance(getApplicationContext()).setUserId(username);
         	postRequestInCache();
+        	upgradeProxy();
     		finish();
         } else {
         	Toast.makeText(getApplicationContext(), 
     				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
-        	showDialog(DIALOG_LOGIN_FAULT);
+//        	showDialog(DIALOG_LOGIN_FAULT);
         }
     }
     
@@ -128,6 +132,13 @@ public class LoginActivity extends Activity{
     	Intent i = new Intent();
 		i.setClass(getApplicationContext(), ProxyService.class);
 		i.putExtra(ProxyService.PROXY_INTENT_TYPE, ProxyService.PROXY_INTENT_TYPE_POSTREQUESTS);
+		startService(i);
+    }
+    
+    private void upgradeProxy() {
+    	Intent i = new Intent();
+		i.setClass(getApplicationContext(), UpgradeService.class);
+		i.setAction(UpgradeService.ACTION);
 		startService(i);
     }
     
@@ -194,10 +205,12 @@ public class LoginActivity extends Activity{
 		case DIALOG_NETWORK_DISABLE:
 			dialog.getWindow().setBackgroundDrawableResource(R.drawable.network_disable);
 			dialog.setCanceledOnTouchOutside(true);
+			((AlertDialog)dialog).setMessage(getString(R.string.txt_netword_disable));
 			break;
 		case DIALOG_LOGIN_FAULT:
 			dialog.getWindow().setBackgroundDrawableResource(R.drawable.login_fault);
 			dialog.setCanceledOnTouchOutside(true);
+			((AlertDialog)dialog).setMessage(mXMLResponse.errorDescription);
 			break;
 		}
 	}

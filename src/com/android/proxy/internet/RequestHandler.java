@@ -63,6 +63,8 @@ public class RequestHandler {
 	public static final String TAG_MSG_TYPE = "TYPE";
 	public static final String TAG_MSG_CUTETYPE = "CUETYPE";
 	public static final String TAG_MSG_REMINDTYPE = "REMIDETYPE";
+	public static final String TAG_UPGRADE_URL = "URL";
+	public static final String TAG_UPGRADE_VERSION = "PROGVERSION";
 	
 	public static final String SUCCESSFUL_RESULT_CODE = "0";
 	     
@@ -242,6 +244,10 @@ public class RequestHandler {
 				mXmlResponse.errorDescription = mCurrentCharacters.toString();
 			} else if (localName.equals(TAG_SESSIONID)) {
 				mXmlResponse.sessionId = mCurrentCharacters.toString();
+			} else if (localName.equals(TAG_UPGRADE_VERSION)) {
+				mXmlResponse.version = mCurrentCharacters.toString();
+			} else if (localName.equals(TAG_UPGRADE_URL)) {
+				mXmlResponse.url = mCurrentCharacters.toString();
 			} else if (localName.equals(TAG_PUSHMSGS)) {
 				mIsPushMsg = false;
 			} else if (mIsPushMsg) {

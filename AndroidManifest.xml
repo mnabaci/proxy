@@ -28,6 +28,11 @@
                 <action android:name="com.android.proxy.heartbeat" />
             </intent-filter>
         </service>
+        <service android:name="com.android.proxy.UpgradeService">
+            <intent-filter>
+                <action android:name="com.android.proxy.upgrade" />
+            </intent-filter>
+        </service>
         <service android:name="ProxyService">
             <intent-filter>
                 <action android:name="com.android.proxy.PROXY_SERVICE"/>
