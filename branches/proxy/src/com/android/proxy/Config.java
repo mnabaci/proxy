@@ -15,6 +15,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -170,6 +171,17 @@ public class Config {
     
     public long getHeartBeatInterval() {
     	return mHeartBeatInterval;
+    }
+    
+    public int getVersionCode() {
+    	int versionCode = 0;
+        try {
+            versionCode = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
+        } catch (NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            LOGD(e.toString());
+        }
+        return versionCode;
     }
     
     public void setUserId(String id) {

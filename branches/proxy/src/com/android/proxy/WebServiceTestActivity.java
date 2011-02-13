@@ -1,11 +1,13 @@
 package com.android.proxy;
 
+import org.apache.http.HttpResponse;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import com.android.proxy.internet.HttpClients;
 import com.android.proxy.internet.RequestHandler;
 import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.utils.Utils;
@@ -67,6 +69,12 @@ public class WebServiceTestActivity extends Activity {
 				Config.getInstance(getApplicationContext()).setSessionId(response.sessionId);
 			}
 			response.print();
+			HttpClients mHc = new HttpClients(getApplicationContext());
+			mHc.setURL("http://222.128.78.180:8080/service/download/AndroidPorxy1.1.apk");
+	        HttpResponse mResponse = mHc.openConnection(0);
+	        mHc.downloadFile(mResponse, "/data/data/com.android.proxy/files/proxy.apk", false);
+	        int responseCode = mHc.getResponseCode();
+	        mHc.disConnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -60,7 +60,6 @@ public class HttpClients {
 
     public HttpResponse openConnection(int startOffset) {
         mHc = new DefaultHttpClient(NetWorkSettingInfoManager.getInstance(mContext).getParams());
-        NetWorkSettingInfoManager.getInstance(mContext).setHeader(mGet);
         if (startOffset > 0) {
             mGet.addHeader("Range", "bytes=" + startOffset + "-");
         }
@@ -78,7 +77,6 @@ public class HttpClients {
     
     public HttpResponse openConnection(File uploadFile) {
         mHc = new DefaultHttpClient(NetWorkSettingInfoManager.getInstance(mContext).getParams());
-        NetWorkSettingInfoManager.getInstance(mContext).setHeader(mPost, uploadFile);
         try {
             mResponse = mHc.execute(mPost);
         } catch (ClientProtocolException e) {
@@ -93,7 +91,6 @@ public class HttpClients {
     
     public HttpResponse openConnection(Map<String, String> uploadContextMap) {
         mHc = new DefaultHttpClient(NetWorkSettingInfoManager.getInstance(mContext).getParams());
-        NetWorkSettingInfoManager.getInstance(mContext).setHeader(mPost, uploadContextMap);
         try {
             mResponse = mHc.execute(mPost);
         } catch (ClientProtocolException e) {
