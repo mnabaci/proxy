@@ -24,6 +24,7 @@ import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.utils.INIFile;
 import com.android.proxy.utils.ThemeUtils;
+import com.android.proxy.utils.Utils;
 
 public class Config {
 	
@@ -42,10 +43,13 @@ public class Config {
     private static final String RANDOM = "12345678912345678912345678912345";  //random
     
     public static final String PREF_USERID = "pref_userid";
+    public static final String PREF_PWD = "pref_pwd";
     public static final String PREF_SESSIONID = "pref_sessionid";
+    public static final String PREF_REMEMBER_PWD = "pref_remember_pwd";
     public static final String EMPTY_STRING = "";
     
     private static final String TAG_PACKAGE = "package";
+    private static final String LOCAL_PWD_KEY = "a09771a3e9601631";
         
     private static Config sConfig = null;
     private String mConfigFilePath;
@@ -160,6 +164,15 @@ public class Config {
     	return mSharedPreferences.getString(PREF_USERID, EMPTY_STRING);
     }
     
+    public String getPassword() {
+    	String pwd = mSharedPreferences.getString(PREF_PWD, EMPTY_STRING);
+    	return Utils.Decrypt(pwd, LOCAL_PWD_KEY);
+    }
+    
+    public boolean isRememberPwd() {
+    	return mSharedPreferences.getBoolean(PREF_REMEMBER_PWD, false);
+    }
+    
     public String getFlatId() {
 //    	return DeviceInfo.getInstance(mContext).getIMEI();
     	return mFlatId; 
@@ -186,6 +199,16 @@ public class Config {
     
     public void setUserId(String id) {
     	mEditor.putString(PREF_USERID, id);
+    	mEditor.commit();
+    }
+    
+    public void setPassword(String pwd) {
+    	mEditor.putString(PREF_PWD, Utils.Encrypt(pwd, LOCAL_PWD_KEY));
+    	mEditor.commit();
+    }
+    
+    public void setRememberPwd(boolean remember) {
+    	mEditor.putBoolean(PREF_REMEMBER_PWD, remember);
     	mEditor.commit();
     }
     

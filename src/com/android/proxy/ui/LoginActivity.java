@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,8 +16,12 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.android.proxy.Config;
 import com.android.proxy.ProxyService;
@@ -47,11 +52,13 @@ public class LoginActivity extends Activity{
     private static final int SHOW_WARNING_DIALOG = 4;
     
     private AlertDialog mTipsDialog;
+    private TextView mTipTextView;
     private String username;
     private String password;
     
     private EditText mEditUserName;
     private EditText mEditPassword;
+    private ToggleButton mRememberPWDButton;
     
     private RequestHandler mHandler;
     private Request mRequest;
@@ -73,6 +80,16 @@ public class LoginActivity extends Activity{
         
         mEditUserName = (EditText)findViewById(R.id.log_username);
         mEditPassword = (EditText)findViewById(R.id.log_password);
+        mRememberPWDButton = (ToggleButton)findViewById(R.id.remember_pwd);
+        
+        Config config = Config.getInstance(getApplicationContext());
+        boolean remember = config.isRememberPwd();
+        mRememberPWDButton.setChecked(remember);
+        username = config.getUserId();
+        if (remember) {
+        	password = config.getPassword();
+        }
+        
         mEditUserName.setText(username);
         mEditPassword.setText(password);
         mEditUserName.requestFocus();
@@ -99,6 +116,13 @@ public class LoginActivity extends Activity{
                 finish();
             }
         });
+        mRememberPWDButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// TODO Auto-generated method stub
+				Config.getInstance(getApplicationContext()).setRememberPwd(isChecked);
+			}
+		});
     }
     
     private void processLogin() {
@@ -118,6 +142,11 @@ public class LoginActivity extends Activity{
         if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
         	Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
         	Config.getInstance(getApplicationContext()).setUserId(username);
+        	if (mRememberPWDButton.isChecked()) {
+        		Config.getInstance(getApplicationContext()).setPassword(password);
+        	} else {
+        		Config.getInstance(getApplicationContext()).setPassword("");
+        	}
         	postRequestInCache();
         	upgradeProxy();
     		finish();
@@ -194,7 +223,11 @@ public class LoginActivity extends Activity{
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		// TODO Auto-generated method stub
-		return new AlertDialog.Builder(this).create();
+		AlertDialog dialog = new AlertDialog.Builder(this).create();
+		mTipTextView = (TextView)getLayoutInflater().inflate(R.layout.dialog_view, null);
+		mTipTextView.setBackgroundDrawable(null);
+		dialog.setView(mTipTextView);
+		return dialog;
 	}
 
 	@Override
@@ -205,12 +238,12 @@ public class LoginActivity extends Activity{
 		case DIALOG_NETWORK_DISABLE:
 			dialog.getWindow().setBackgroundDrawableResource(R.drawable.network_disable);
 			dialog.setCanceledOnTouchOutside(true);
-			((AlertDialog)dialog).setMessage(getString(R.string.txt_netword_disable));
+			mTipTextView.setText(getString(R.string.txt_netword_disable));
 			break;
 		case DIALOG_LOGIN_FAULT:
 			dialog.getWindow().setBackgroundDrawableResource(R.drawable.login_fault);
 			dialog.setCanceledOnTouchOutside(true);
-			((AlertDialog)dialog).setMessage(mXMLResponse.errorDescription);
+			mTipTextView.setText(mXMLResponse.errorDescription);
 			break;
 		}
 	}
