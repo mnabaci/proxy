@@ -2,10 +2,12 @@ package com.android.proxy.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -13,6 +15,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.proxy.Config;
@@ -27,6 +30,9 @@ import com.android.proxy.utils.Utils;
 public class RegisterActivity extends Activity {
     private static final String TAG = "RegisterActivity";
     private static final boolean DEBUG = true;
+    
+    private static final int DIALOG_NETWORK_DISABLE = 1;
+    private static final int DIALOG_REGISTER_FAULT = 2;
     
     private DialogInterface.OnClickListener mNULLClickListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -44,6 +50,7 @@ public class RegisterActivity extends Activity {
     private static final int CHECK_ILLEGAL_INPUT = 5;
     
     private AlertDialog mTipsDialog;
+    private TextView mTipTextView;
     private EditText mEditUserName;
     private EditText mEditPassword;
     private EditText mEditPassword2;
@@ -63,6 +70,7 @@ public class RegisterActivity extends Activity {
     
     private RequestHandler mHandler;
     private Request mRequest;
+    private XMLResponse mXMLResponse;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,13 +125,19 @@ public class RegisterActivity extends Activity {
                 } else {
                 	String result = postRegisterRequest();
                 	LOGD("result:" + result);
+                	if (TextUtils.isEmpty(result)) {
+                    	showDialog(DIALOG_NETWORK_DISABLE);
+                    	return;
+                    }
                 	XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(),result);
+                	mXMLResponse = xmlInfo;
                 	if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
                 		Config.getInstance(getApplicationContext()).setSessionId(xmlInfo.sessionId);
                 		Config.getInstance(getApplicationContext()).setUserId(mUserName);
                 		postRequestInCache();
                 		finish();
                 	} else {
+                		showDialog(DIALOG_REGISTER_FAULT);
                 		Toast.makeText(getApplicationContext(), 
                 				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
                 	}
@@ -228,6 +242,34 @@ public class RegisterActivity extends Activity {
         mFirstName = mEditFirstName.getText().toString();
 //        resetViewComponents();
     }
+    
+    @Override
+	protected Dialog onCreateDialog(int id) {
+		// TODO Auto-generated method stub
+		AlertDialog dialog = new AlertDialog.Builder(this).create();
+		mTipTextView = (TextView)getLayoutInflater().inflate(R.layout.dialog_view, null);
+		mTipTextView.setBackgroundDrawable(null);
+		dialog.setView(mTipTextView);
+		return dialog;
+	}
+
+	@Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		// TODO Auto-generated method stub
+		super.onPrepareDialog(id, dialog);
+		switch(id) {
+		case DIALOG_NETWORK_DISABLE:
+			dialog.getWindow().setBackgroundDrawableResource(R.drawable.network_disable);
+			dialog.setCanceledOnTouchOutside(true);
+			mTipTextView.setText(getString(R.string.txt_netword_disable));
+			break;
+		case DIALOG_REGISTER_FAULT:
+			dialog.getWindow().setBackgroundDrawableResource(R.drawable.login_fault);
+			dialog.setCanceledOnTouchOutside(true);
+			mTipTextView.setText(mXMLResponse.errorDescription);
+			break;
+		}
+	}
     
     private void LOGD(String text) {
         if (DEBUG) {
