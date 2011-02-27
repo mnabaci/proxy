@@ -134,7 +134,7 @@ public class LoginActivity extends Activity{
         String result = postLoginRequest();
         LOGD("login result:" + result);
         if (TextUtils.isEmpty(result)) {
-//        	showDialog(DIALOG_NETWORK_DISABLE);
+        	showDialog(DIALOG_NETWORK_DISABLE);
         	return;
         }
         XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
@@ -153,7 +153,7 @@ public class LoginActivity extends Activity{
         } else {
         	Toast.makeText(getApplicationContext(), 
     				xmlInfo.errorDescription , Toast.LENGTH_LONG).show();
-//        	showDialog(DIALOG_LOGIN_FAULT);
+        	showDialog(DIALOG_LOGIN_FAULT);
         }
     }
     
