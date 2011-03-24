@@ -193,7 +193,7 @@ public class TestActivity extends Activity {
     		"</OBJECT></OBJECTS>";
     	if (mIsBinding && mService != null) {
     		try {
-				Response response = mService.postRequest(request);
+				Response response = mService.postRequest(request, true);
 				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -212,7 +212,7 @@ public class TestActivity extends Activity {
     		"</CONTACESID></OBJECT></OBJECTS>";
     	if (mIsBinding && mService != null) {
     		try {
-				Response response = mService.postRequest(request);
+				Response response = mService.postRequest(request, true);
 				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -231,7 +231,7 @@ public class TestActivity extends Activity {
     		+"</CONTACESID></OBJECT></OBJECTS>";
     	if (mIsBinding && mService != null) {
     		try {
-				Response response = mService.postRequest(request);
+				Response response = mService.postRequest(request, true);
 				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -256,7 +256,7 @@ public class TestActivity extends Activity {
 		"</OBJECT></OBJECTS>";
     	if (mIsBinding && mService != null) {
     		try {
-				Response response = mService.postRequest(request);
+				Response response = mService.postRequest(request, true);
 				Toast.makeText(getApplicationContext(), response.body, Toast.LENGTH_LONG).show();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
