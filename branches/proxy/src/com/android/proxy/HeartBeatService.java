@@ -49,7 +49,7 @@ public class HeartBeatService extends Service {
 		String result = mHandler.handleRequest(config.getUserId(), config.getFlatId(), 
 				config.getEncryptedSessionId(), mRequest);
 		XMLResponse xmlResponse = RequestHandler.parseXMLResult(getApplicationContext(), result);
-		if (xmlResponse.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
+		if (xmlResponse != null && xmlResponse.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
 			config.setSessionId(xmlResponse.sessionId);
 		}
 		Log.d("HeartBeatService", "heart beat, result=" + result);

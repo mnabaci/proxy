@@ -168,7 +168,7 @@ public class LoginActivity extends Activity{
     	Intent i = new Intent();
 		i.setClass(getApplicationContext(), UpgradeService.class);
 		i.setAction(UpgradeService.ACTION);
-		startService(i);
+//		startService(i);
     }
     
     private boolean checkInput(String username, String password) {

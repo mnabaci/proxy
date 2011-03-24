@@ -93,11 +93,11 @@ public class ProxyService extends Service {
             return Process.myPid();
         }
 
-		public Response postRequest(Request request) throws RemoteException {
+		public Response postRequest(Request request, boolean sync) throws RemoteException {
 			// TODO Auto-generated method stub
 			LOGD("postRequest," + request.action);
 			Response response = new Response();
-			handleRequest(request, false, response);
+			handleRequest(request, false, response, sync);
 			LOGD("after post request");
 			return response;
 		}
@@ -107,6 +107,7 @@ public class ProxyService extends Service {
 			LOGD("getResponse," + id);
 			return getResponseFromCache(id, packageName);
 		}
+		
     };
 
     @Override
@@ -162,7 +163,7 @@ public class ProxyService extends Service {
     		cursor.moveToFirst();
     		do {
     			obtainRequestFromCursor(cursor, mRequest);
-    			handleRequest(mRequest, true, mResponse);
+    			handleRequest(mRequest, true, mResponse, false);
     		} while (cursor.moveToNext());
     	}
     	cursor.close();
@@ -178,7 +179,7 @@ public class ProxyService extends Service {
     	request.body = cursor.getString(REQUEST_BODY_COL);
     }
     
-    private synchronized void handleRequest(Request request, boolean fromCache, Response response) {
+    private synchronized void handleRequest(Request request, boolean fromCache, Response response, boolean sync) {
 		if (!mDeviceInfo.isNetworkAvailable()) {
 			if (!fromCache) {
 				int rId = insertRequestToCache(request);
@@ -193,6 +194,9 @@ public class ProxyService extends Service {
     			if (!fromCache) {
     				int rId = insertRequestToCache(request);
     				request.cacheId = rId;
+    			} else {
+    				LOGD("return null, request from cache, to be deleted," + request.cacheId);
+    				deleteRequestFromCache(request.cacheId);
     			}
         		response.reset();
         		response.requestId = request.cacheId;
@@ -206,10 +210,12 @@ public class ProxyService extends Service {
     					LOGD("+++++++++++++++++++++++++++++++++");
     					int rId = insertRequestToCache(request);
 	    				request.cacheId = rId;
-	    				Intent intent = new Intent(Intent.ACTION_MAIN);
-	    				intent.setClass(getApplicationContext(), LoginActivity.class);
-	    				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    				startActivity(intent);
+	    				if (sync) {
+		    				Intent intent = new Intent(Intent.ACTION_MAIN);
+		    				intent.setClass(getApplicationContext(), LoginActivity.class);
+		    				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    				startActivity(intent);
+	    				}
     				}
     				response.reset();
     				response.requestId = request.cacheId;
