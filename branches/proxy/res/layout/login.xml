@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="320px"
+    android:layout_height="480px"
     android:orientation="vertical"
     android:isScrollContainer="true">
     <LinearLayout
@@ -77,21 +77,27 @@
                 android:layout_height="50px"
                 android:layout_weight="0.33"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:background="@drawable/login_btn"/>
+                android:textColor="@android:color/white"
+                android:text="@string/btn_login"
+                android:background="@drawable/btn_bg"/>
             <Button
                 android:id="@+id/btn_register"
                 android:layout_width="fill_parent"
                 android:layout_height="50px"
                 android:layout_weight="0.33"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:background="@drawable/register_btn"/>
+                android:textColor="@android:color/white"
+                android:text="@string/btn_register"
+                android:background="@drawable/btn_bg"/>
             <Button
                 android:id="@+id/btn_log_cancel"
                 android:layout_width="fill_parent"
                 android:layout_height="50px"
                 android:layout_weight="0.33"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:background="@drawable/cancel"/>
+                android:textColor="@android:color/white"
+                android:text="@string/cancel"
+                android:background="@drawable/btn_bg"/>
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
 

@@ -20,7 +20,7 @@ import android.util.Log;
 public class WebServiceTestActivity extends Activity {
 	 /** Called when the activity is first created. */
 
-	private static final String METHOD_NAME = "get";
+	private static final String METHOD_NAME = "post";
 	private static final String NAMESPACE = "http://ext.service.eaglelink.cn/";
 	 
 	private static final String SOAP_ACTION = "CloudService";
@@ -35,19 +35,25 @@ public class WebServiceTestActivity extends Activity {
 		try {
 			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 			
-			request.addProperty("arg0", Config.getInstance(getApplicationContext()).getUserId());
-			request.addProperty("arg1", Config.getInstance(getApplicationContext()).getFlatId());
-			request.addProperty("arg2", Config.getInstance(getApplicationContext()).getEncryptedSessionId());
-			request.addProperty("arg3", "1");
-			request.addProperty("arg4", "VERSION");
-			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
-					+ "<DEVICEPIM>" + "0000000000003" 
-					+ "</DEVICEPIM>" + "<SESSIONID>" + Config.getInstance(getApplicationContext()).getEncryptedSessionId() 
-					+ "</SESSIONID>" + "<PROGNAME>" + "AndroidProxy" + "</PROGNAME>" 
-					+ "<PROGID>AndroidProxy</PROGID>" + "<PROGOS>Android-2.2</PROGOS>"
-					+ "<DEVICETYPE>EagleLinkFlat</DEVICETYPE>"
-					+ "<PROGVERSION>1.0</PROGVERSION>"
-					+ "</OBJECT></OBJECTS>");
+			request.addProperty("arg0", "jun.liu@eaglelink.cn");
+			request.addProperty("arg1", "EAGLELINK001");
+			request.addProperty("arg2", "eaglelink888");
+			request.addProperty("arg3", "-1");
+			request.addProperty("arg4", "USERS");
+//			request.addProperty("arg5", "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
+//					+ "<DEVICEPIM>" + "0000000000003" 
+//					+ "</DEVICEPIM>" + "<SESSIONID>" + Config.getInstance(getApplicationContext()).getEncryptedSessionId() 
+//					+ "</SESSIONID>" + "<PROGNAME>" + "AndroidProxy" + "</PROGNAME>" 
+//					+ "<PROGID>AndroidProxy</PROGID>" + "<PROGOS>Android-2.2</PROGOS>"
+//					+ "<DEVICETYPE>EagleLinkFlat</DEVICETYPE>"
+//					+ "<PROGVERSION>1.0</PROGVERSION>"
+//					+ "</OBJECT></OBJECTS>");
+//			String registerXML = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
+//				+ "<USERID>fangg05@gmail.com</USERID><FLATID>" + Config.getInstance(getApplicationContext()).getFlatId() + "</FLATID>"
+//				+ "</OBJECT></OBJECTS>";
+			String registerXML = "";
+			request.addProperty("arg5", registerXML);
+			
 			Log.d("WebServiceActivity", "request:" + request.toString());
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER10);

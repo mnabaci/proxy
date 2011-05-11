@@ -56,8 +56,8 @@ public class RegisterActivity extends Activity {
     private EditText mEditPassword2;
     private EditText mEditPhone;
     private Spinner mSpinner;
-    private EditText mEditLastName;
-    private EditText mEditFirstName;
+//    private EditText mEditLastName;
+//    private EditText mEditFirstName;
     
     private String mUserName;
     private String mPassword;
@@ -83,22 +83,22 @@ public class RegisterActivity extends Activity {
     
     private void resetViewComponents() {
     	requestWindowFeature(Window.FEATURE_NO_TITLE);
-    	getWindow().setBackgroundDrawableResource(R.drawable.register_bg);
+    	getWindow().setBackgroundDrawableResource(R.drawable.bg);
         setContentView(R.layout.register);
         
         mEditUserName = (EditText)findViewById(R.id.reg_username);
         mEditPassword = (EditText)findViewById(R.id.reg_password);
         mEditPassword2 = (EditText)findViewById(R.id.reg_password2);
         mEditPhone = (EditText)findViewById(R.id.reg_phone);
-        mEditLastName = (EditText)findViewById(R.id.last_name);
-        mEditFirstName = (EditText)findViewById(R.id.first_name);
+//        mEditLastNamse = (EditText)findViewById(R.id.last_name);
+//        mEditFirstName = (EditText)findViewById(R.id.first_name);
         mEditUserName.setText(mUserName);
         mEditPassword.setText(mPassword);
         mEditPassword2.setText(mPassword2);
         mEditPhone.setText(mPhoneNumber);
         mEditUserName.requestFocus();
-        mEditLastName.setText(mLastName);
-        mEditFirstName.setText(mFirstName);
+//        mEditLastName.setText(mLastName);
+//        mEditFirstName.setText(mFirstName);
         
         Button btnRegister = (Button)findViewById(R.id.btn_register);
         Button btnCancel = (Button)findViewById(R.id.btn_cancel);
@@ -109,8 +109,8 @@ public class RegisterActivity extends Activity {
                 mPassword = mEditPassword.getText().toString();
                 mPassword2 = mEditPassword2.getText().toString();
                 mPhoneNumber = mEditPhone.getText().toString();
-                mLastName = mEditLastName.getText().toString();
-                mFirstName = mEditFirstName.getText().toString();
+//                mLastName = mEditLastName.getText().toString();
+//                mFirstName = mEditFirstName.getText().toString();
                 int checkResult = checkInput(mUserName, mPassword, mPassword2);
                 if(checkResult == CHECK_ILLEGAL_INPUT) {
                     mToast.cancel();
@@ -168,8 +168,8 @@ public class RegisterActivity extends Activity {
     		+ "<PWD>" + mEditPassword.getText().toString() + "</PWD>" 
     		+ "<DEVICEPIM>" + config.getFlatId() + "</DEVICEPIM>"
     		+ "<COMMPIM>" + DeviceInfo.getInstance(getApplicationContext()).getIMSI() + "</COMMPIM>"
-    		+ "<USERLNAME>" + mEditLastName.getText().toString() + "</USERLNAME>"
-    		+ "<USERFNAME>" + mEditFirstName.getText().toString() + "</USERFNAME>"
+//    		+ "<USERLNAME>" + mEditLastName.getText().toString() + "</USERLNAME>"
+//    		+ "<USERFNAME>" + mEditFirstName.getText().toString() + "</USERFNAME>"
     		+ "<MPHONE>" + mEditPhone.getText().toString() + "</MPHONE>"
     		+ "</OBJECT></OBJECTS>";
     	LOGD("request body:" + mRequest.body);
@@ -238,8 +238,8 @@ public class RegisterActivity extends Activity {
         mPassword = mEditPassword.getText().toString();
         mPassword2 = mEditPassword2.getText().toString();
         mPhoneNumber = mEditPhone.getText().toString();
-        mLastName = mEditLastName.getText().toString();
-        mFirstName = mEditFirstName.getText().toString();
+//        mLastName = mEditLastName.getText().toString();
+//        mFirstName = mEditFirstName.getText().toString();
 //        resetViewComponents();
     }
     

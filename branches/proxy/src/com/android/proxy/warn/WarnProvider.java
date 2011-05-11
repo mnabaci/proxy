@@ -39,6 +39,7 @@ public class WarnProvider extends ContentProvider {
     public static final String INTENT_DATA = "intent_data";
     public static final String CHECKED = "checked";
     public static final String TITLE = "title";
+    public static final String EVENT_ID = "event_id";
     
     private static final int WARNS = 1;
     private static final int WARN_ID = 2;
@@ -60,7 +61,7 @@ public class WarnProvider extends ContentProvider {
                                   + FINISH_TIME + " long, " + MESSAGE + " text, " + VIBRATE + " boolean, "
                                   + SOUND + " boolean, " + SHOW_TYPE + " integer, " + INTENT_TARGET + " text, "
                                   + INTENT_ACTION + " text, " + INTENT_DATA + " text, " + CHECKED + " boolean, "
-                                  + TITLE + " text);";
+                                  + TITLE + " text, " + EVENT_ID + " text);";
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
 

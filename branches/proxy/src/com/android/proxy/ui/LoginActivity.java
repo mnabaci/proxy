@@ -75,7 +75,7 @@ public class LoginActivity extends Activity{
     
     private void resetViewComponents() {
     	getWindow().requestFeature(Window.FEATURE_NO_TITLE); 
-    	getWindow().setBackgroundDrawableResource(R.drawable.login_bg);
+    	getWindow().setBackgroundDrawableResource(R.drawable.bg);
         setContentView(R.layout.login);
         
         mEditUserName = (EditText)findViewById(R.id.log_username);
