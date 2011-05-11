@@ -1,5 +1,6 @@
 package com.android.proxy;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.LinkedList;
 import java.util.Vector;
 
@@ -154,6 +155,14 @@ public class ProxyService extends Service {
         mContentValues = new ContentValues();
         mRequestHandler = new RequestHandler(mConfig.getCloudUrl());
         launchHeartBeatService();
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			
+			public void uncaughtException(Thread thread, Throwable ex) {
+				// TODO Auto-generated method stub
+				LOGD("uncaughtException");
+				ex.printStackTrace();
+			}
+		});
     }
     
     private synchronized void handleRequestsInCache() {

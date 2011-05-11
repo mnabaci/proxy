@@ -2,4 +2,21 @@
 <TrustList>
 	<package>com.android.testapp</package>
 	<package>com.android.phone</package>
+	<package>com.uyunke.CONTACES</package>
+	<package>com.uyunke.CALENDAR</package>
+	<package>com.uyunke.MEMOS</package>
+	<package>com.uyunke.MEETINGS</package>
+	<package>com.uyunke.RELATIONSHIP</package>
+	<package>com.uyunke.AFFAIRS</package>
+	<package>com.uyunke.NEWS</package>
+	<package>insure.proxyTest</package>
+    <package>insure.main</package>
+    <package>com.yunke.contacts</package>
+    <package>com.yunke.calendar</package>
+    <package>com.yunke.notes</package>
+    <package>com.uyunke.meetings</package>
+    <package>com.uyunke.relationship</package>
+    <package>com.uyunke.affairs</package>
+    <package>com.uyunke.news</package>
+    <package>com.uyunke.store</package>
 </TrustList>

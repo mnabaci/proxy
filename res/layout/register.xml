@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="320px"
+    android:layout_height="480px"
     android:orientation="vertical"
     android:isScrollContainer="true">
     <ScrollView
@@ -71,7 +71,7 @@
                 android:singleLine="true"
                 android:phoneNumber="true"
                 android:maxLength="200"/>
-            <TextView
+            <!--  TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/txt_last_name"
@@ -94,32 +94,37 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:maxLength="200"/> 
+                android:maxLength="200"/--> 
         </LinearLayout>
     </ScrollView>
     
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="false">
         <Button
             android:id="@+id/btn_register"
             android:layout_width="fill_parent"
             android:layout_height="50px"
             android:layout_weight="0.5"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:background="@drawable/register_btn"/>
+            android:textColor="@android:color/white"
+            android:text="@string/btn_register"
+            android:background="@drawable/btn_bg"/>
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="fill_parent"
             android:layout_height="50px"
             android:layout_weight="0.5"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:background="@drawable/cancel"/>
+            android:textColor="@android:color/white"
+            android:text="@string/cancel"
+            android:background="@drawable/btn_bg"/>
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
 

@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -62,7 +63,13 @@ public class WarnReceiver extends BroadcastReceiver {
 					intent.setAction(mWarn.getIntentAction());
 				}
 				if (mWarn.getIntentTarget() != null) {
-					intent.setClassName(mContext, mWarn.getIntentTarget());
+					int splitterIndex = mWarn.getIntentTarget().lastIndexOf('/');
+					if (splitterIndex > 0) {
+			        	String packageName = mWarn.getIntentTarget().substring(0, splitterIndex);
+			        	String className = mWarn.getIntentTarget().substring(splitterIndex+1);
+			        	LOGD("packageName:" + packageName + ",className:" + className);
+			            intent.setClassName(packageName, className);
+					}
 				}
 				if (mWarn.getIntentData() != null) {
 					intent.setData(Uri.parse(mWarn.getIntentData()));
@@ -102,7 +109,13 @@ public class WarnReceiver extends BroadcastReceiver {
             intent.setAction(warn.getIntentAction());
         }
         if (warn.getIntentTarget() != null) {
-            intent.setClassName(mContext, warn.getIntentTarget());
+        	int splitterIndex = warn.getIntentTarget().lastIndexOf('/');
+        	if (splitterIndex > 0) {
+	        	String packageName = warn.getIntentTarget().substring(0, splitterIndex);
+	        	String className = warn.getIntentTarget().substring(splitterIndex+1);
+	        	LOGD("packageName:" + packageName + ",className:" + className);
+	            intent.setClassName(packageName, className);
+        	}
         }
         if (warn.getIntentData() != null) {
             intent.setData(Uri.parse(warn.getIntentData()));
