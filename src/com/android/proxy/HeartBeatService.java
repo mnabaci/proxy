@@ -46,8 +46,9 @@ public class HeartBeatService extends Service {
 			return;
 		}
 		Config config = Config.getInstance(getApplicationContext());
+		String sessionid = config.isRegistered() ? config.getEncryptedSessionId() : config.ANONOYMOUS_SESSIONID;
 		String result = mHandler.handleRequest(config.getUserId(), config.getFlatId(), 
-				config.getEncryptedSessionId(), mRequest);
+				sessionid, mRequest);
 		XMLResponse xmlResponse = RequestHandler.parseXMLResult(getApplicationContext(), result);
 		if (xmlResponse != null && xmlResponse.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
 			config.setSessionId(xmlResponse.sessionId);

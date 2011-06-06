@@ -1,7 +1,11 @@
 package com.android.proxy;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -9,6 +13,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -46,7 +51,10 @@ public class Config {
     public static final String PREF_PWD = "pref_pwd";
     public static final String PREF_SESSIONID = "pref_sessionid";
     public static final String PREF_REMEMBER_PWD = "pref_remember_pwd";
+    public static final String PREF_FLATID = "pref_flatid";
     public static final String EMPTY_STRING = "";
+    
+    public static final String ANONOYMOUS_SESSIONID = "anonymous";
     
     private static final String TAG_PACKAGE = "package";
     private static final String LOCAL_PWD_KEY = "a09771a3e9601631";
@@ -90,7 +98,12 @@ public class Config {
     	mConfigFile = new INIFile(mConfigFilePath);
     	mMaxSpace = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, PROPERTY_MAX_SPACE, DEFAULT_VALUE_MAX_SPACE);
     	mCloudUrl = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_URL, "");
-    	mFlatId = ThemeUtils.getText(mConfigFile, SECTION_CONFIG, PROPERTY_FLATID, "");
+    	mFlatId = mSharedPreferences.getString(PREF_FLATID, EMPTY_STRING);
+    	if (TextUtils.isEmpty(mFlatId)) {
+    		mFlatId = genUUID();
+    		mEditor.putString(PREF_FLATID, mFlatId);
+    		mEditor.commit();
+    	}
     	mHeartBeatInterval = ThemeUtils.getLong(mConfigFile, SECTION_CONFIG, 
     			PROPERTY_HEARTBEAT_INTERVAL, DEFAULT_VALUE_HEARTBEAT_INTERVAL);
     	mTrustPackages = new HashSet<String>();
@@ -169,6 +182,10 @@ public class Config {
     	return Utils.Decrypt(pwd, LOCAL_PWD_KEY);
     }
     
+    public boolean isRegistered() {
+    	return !TextUtils.isEmpty(getUserId());
+    }
+    
     public boolean isRememberPwd() {
     	return mSharedPreferences.getBoolean(PREF_REMEMBER_PWD, false);
     }
@@ -238,6 +255,15 @@ public class Config {
             mStringBuffer.append(sessioid2[i]);
         }
         return mStringBuffer.toString()+RANDOM;
+    }
+    
+    public static String genUUID() {
+    	// TODO 检测，如果使用标准办法，采集不到平板ID，则采用此办法随机生成UUID，此ID将作为该平板电脑的唯一标识存在；
+    	// 需要注意的是：第一次生成UUID后应该永久保存起来，哪怕是重启平板或者更新升级本程序，UUID都应保持不变；
+    	UUID uuid = UUID.randomUUID();
+    	String str = uuid.toString();
+    	String temp = str.substring(0,8)+str.substring(9, 13)+str.substring(14, 18)+str.substring(19, 23)+str.substring(24);
+    	return temp;
     }
     
     private static void LOGD(String text) {

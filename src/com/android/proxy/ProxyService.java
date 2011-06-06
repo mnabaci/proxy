@@ -24,6 +24,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.proxy.cache.Request;
 import com.android.proxy.cache.RequestProvider;
@@ -32,6 +33,8 @@ import com.android.proxy.cache.ResponseProvider;
 import com.android.proxy.internet.RequestHandler;
 import com.android.proxy.internet.XMLResponse;
 import com.android.proxy.ui.LoginActivity;
+import com.android.proxy.ui.NewLoginActivity;
+import com.android.proxy.ui.NewRegisterActivity;
 import com.android.proxy.utils.DeviceInfo;
 import com.android.proxy.utils.Environment;
 import com.android.proxy.utils.Utils;
@@ -98,7 +101,15 @@ public class ProxyService extends Service {
 			// TODO Auto-generated method stub
 			LOGD("postRequest," + request.action);
 			Response response = new Response();
-			handleRequest(request, false, response, sync);
+			if (checkRequest(request)) {
+				handleRequest(request, false, response, sync);
+				if (response.requestId >= 0) {
+					response.errorId = Response.ERROR_WEBSERVICE_ERROR;
+				}
+			} else {
+				response.requestId = Response.ERROR_RESPONSE;
+				response.errorId = Response.ERROR_PARAMETER_PROBLEM;
+			}
 			LOGD("after post request");
 			return response;
 		}
@@ -110,6 +121,10 @@ public class ProxyService extends Service {
 		}
 		
     };
+    
+    private boolean checkRequest(Request request) {
+    	return true;
+    }
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -161,13 +176,14 @@ public class ProxyService extends Service {
 				// TODO Auto-generated method stub
 				LOGD("uncaughtException");
 				ex.printStackTrace();
+				System.exit(0);
 			}
 		});
     }
     
     private synchronized void handleRequestsInCache() {
     	Cursor cursor = getContentResolver().query(RequestProvider.CONTENT_URI, REQUEST_PROJECTION,
-    			RequestProvider.RESPONSE + " = " + RequestProvider.NO_RESPONSE, null, null);
+    			RequestProvider.RESPONSE + " = " + RequestProvider.NO_RESPONSE, null, RequestProvider.TYPE + " asc");
     	if (cursor.getCount() > 0) {
     		cursor.moveToFirst();
     		do {
@@ -188,10 +204,10 @@ public class ProxyService extends Service {
     	request.body = cursor.getString(REQUEST_BODY_COL);
     }
     
-    private synchronized void handleRequest(Request request, boolean fromCache, Response response, boolean sync) {
-		if (!mDeviceInfo.isNetworkAvailable()) {
+    private synchronized void handleRequestDirectly(Request request, boolean fromCache, Response response, boolean sync) {
+    	if (!mDeviceInfo.isNetworkAvailable()) {
 			if (!fromCache) {
-				int rId = insertRequestToCache(request);
+				int rId = insertRequestToCache(request, response);
     			request.cacheId = rId;
 			}
     		response.reset();
@@ -201,7 +217,7 @@ public class ProxyService extends Service {
     				request);
     		if (TextUtils.isEmpty(result)) {
     			if (!fromCache) {
-    				int rId = insertRequestToCache(request);
+    				int rId = insertRequestToCache(request, response);
     				request.cacheId = rId;
     			} else {
     				LOGD("return null, request from cache, to be deleted," + request.cacheId);
@@ -212,18 +228,99 @@ public class ProxyService extends Service {
     		} else {
     			LOGD("handle request, response=" + result);
     			XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
+    			if (xmlInfo == null) {
+    				response.requestId = Response.ERROR_RESPONSE;
+    				response.errorId = Response.ERROR_XML_ERROR;
+    				return;
+    			}
     			LOGD("sessionId=" + xmlInfo.sessionId);
     			if (xmlInfo.sessionId == null || xmlInfo.sessionId.equals("null") 
     					|| TextUtils.isEmpty(xmlInfo.sessionId)) {	
     				if (!fromCache) {
     					LOGD("+++++++++++++++++++++++++++++++++");
-    					int rId = insertRequestToCache(request);
+	    				int rId = insertRequestToCache(request, response);
 	    				request.cacheId = rId;
+    				}
+    				response.reset();
+    				response.requestId = request.cacheId;
+    			} else {
+    				response.body = result;
+        			response.requestId = Response.REAL_RESPONSE;
+        			response.packageName = request.packageName;
+        			response.time = System.currentTimeMillis();
+    				mConfig.setSessionId(xmlInfo.sessionId);
+	    			if (fromCache) {
+	    				response.requestId = request.cacheId;
+	    				int responseId = insertResponseToCache(response);
+	    				setRequestHandledInCache(request.cacheId, responseId);
+	    			}
+    			}
+    		}
+    	}
+		return;
+    }
+    
+    private synchronized void handleRequest(Request request, boolean fromCache, Response response, boolean sync) {
+    	if (!mDeviceInfo.isNetworkAvailable()) {
+    		LOGD("netword unavailable");
+			if (!fromCache) {
+				int rId = insertRequestToCache(request, response);
+    			request.cacheId = rId;
+			}
+    		response.reset();
+    		response.requestId = request.cacheId;
+    	} else {
+    		String result = mRequestHandler.handleRequest(mConfig.getUserId(), mConfig.getFlatId(), mConfig.getEncryptedSessionId(), 
+    				request);
+    		if (TextUtils.isEmpty(result)) {
+    			LOGD("empty result");
+    			if (!fromCache) {
+    				int rId = insertRequestToCache(request, response);
+    				request.cacheId = rId;
+    			} else {
+    				LOGD("return null, request from cache, to be deleted," + request.cacheId);
+    				deleteRequestFromCache(request.cacheId);
+    			}
+        		response.reset();
+        		response.requestId = request.cacheId;
+    		} else {
+    			LOGD("handle request, response=" + result);
+    			XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
+    			if (xmlInfo == null) {
+    				response.requestId = Response.ERROR_RESPONSE;
+    				response.errorId = Response.ERROR_XML_ERROR;
+    				return;
+    			}
+    			LOGD("sessionId=" + xmlInfo.sessionId);
+    			if (xmlInfo.sessionId == null || xmlInfo.sessionId.equals("null") 
+    					|| TextUtils.isEmpty(xmlInfo.sessionId)) {	
+    				if (!fromCache) {
+    					LOGD("+++++++++++++++++++++++++++++++++");
+    					boolean loginSuccess = false;
+	    				if (mConfig.isRegistered() && mConfig.isRememberPwd()) {
+	    					loginSuccess = postLoginRequest();
+	    					if (!loginSuccess) {
+	    						response.errorId = Response.ERROR_LOGIN;
+	    					}
+	    				}
+	    				if (!loginSuccess) {
+	    					int rId = insertRequestToCache(request, response);
+	    					request.cacheId = rId;
+	    				}
 	    				if (sync) {
 		    				Intent intent = new Intent(Intent.ACTION_MAIN);
-		    				intent.setClass(getApplicationContext(), LoginActivity.class);
-		    				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		    				startActivity(intent);
+		    				if (!mConfig.isRegistered()) {
+		    					intent.setClass(getApplicationContext(), NewRegisterActivity.class);
+		    					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			    				startActivity(intent);
+		    				} else if (!loginSuccess){
+		    					intent.setClass(getApplicationContext(), NewLoginActivity.class);
+		    					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			    				startActivity(intent);
+		    				} else {
+		    					handleRequestDirectly(request, fromCache, response, sync);
+		    					return;
+		    				}
 	    				}
     				}
     				response.reset();
@@ -243,6 +340,31 @@ public class ProxyService extends Service {
     		}
     	}
 		return;
+    }
+    
+    private boolean postLoginRequest() {
+    	Config config = Config.getInstance(getApplicationContext());
+    	Request request = new Request();
+    	request.action = Request.ACTION_GET;
+    	request.items = "USERINFO";
+    	request.versionId = "-1";
+    	request.body = "<?xml version='1.0' encoding='utf-8'?><OBJECTS><OBJECT>"
+    		+ "<PWD>" + Utils.Encrypt(config.getPassword()) + "</PWD>" 
+    		+ "<DEVICEPIM>" + config.getFlatId() + "</DEVICEPIM>"
+    		+ "<COMMPIM>" + DeviceInfo.getInstance(getApplicationContext()).getIMSI() + "</COMMPIM>"
+    		+ "</OBJECT></OBJECTS>";
+    	Log.d("postLoginRequest", "login:" + mRequest.body);
+    	String result = mRequestHandler.handleRequest(config.getUserId(), config.getFlatId(), null, request);
+    	if (TextUtils.isEmpty(result)) {
+			return false;
+		} else {
+			XMLResponse xmlInfo = RequestHandler.parseXMLResult(getApplicationContext(), result);
+	        if (xmlInfo.resultCode.equals(RequestHandler.SUCCESSFUL_RESULT_CODE)) {
+	        	config.setSessionId(xmlInfo.sessionId);
+	        	return true;
+	        }
+		}
+    	return false;
     }
     
     private void launchHeartBeatService() {
@@ -292,7 +414,7 @@ public class ProxyService extends Service {
      * @param request
      * @return request id in request cache
      */
-    private int insertRequestToCache(Request request) {
+    private int insertRequestToCache(Request request, Response response) {
     	mContentValues.clear();
     	mContentValues.put(RequestProvider.ACTION, request.action);
     	mContentValues.put(RequestProvider.OWNER, request.packageName);
@@ -301,7 +423,17 @@ public class ProxyService extends Service {
     	mContentValues.put(RequestProvider.BODY, request.body);
     	mContentValues.put(RequestProvider.TIME, System.currentTimeMillis());
     	mContentValues.put(RequestProvider.RESPONSE, RequestProvider.NO_RESPONSE);
-    	Uri uri = getContentResolver().insert(RequestProvider.CONTENT_URI, mContentValues);
+    	if ("PUSHMSG.GETPUSHMSG".equals(request.items)) {
+    		mContentValues.put(RequestProvider.TYPE, RequestProvider.TYPE_PUSHMESSAGE);
+    	} else {
+    		mContentValues.put(RequestProvider.TYPE, RequestProvider.TYPE_OTHERS);
+    	}
+    	Uri uri = null;
+    	try {
+    		uri = getContentResolver().insert(RequestProvider.CONTENT_URI, mContentValues);
+    	} catch (Exception e) {
+    		response.errorId = Response.ERROR_QUEUE_QUERY;
+    	}
     	return (int) ContentUris.parseId(uri);
     }
     
@@ -338,9 +470,14 @@ public class ProxyService extends Service {
     }
     
     private Response getResponseFromCache(int requestId, String packageName) {
-    	Cursor cursor = getContentResolver().query(ResponseProvider.CONTENT_URI, 
-    			RESPONSE_PROJECTION, ResponseProvider.REQUEST_ID + " = " + requestId 
-    			+ " AND " + ResponseProvider.OWNER + " = '" + packageName + "'", null, null);
+    	Cursor cursor = null;
+    	try {
+	    	cursor = getContentResolver().query(ResponseProvider.CONTENT_URI, 
+	    			RESPONSE_PROJECTION, ResponseProvider.REQUEST_ID + " = " + requestId 
+	    			+ " AND " + ResponseProvider.OWNER + " = '" + packageName + "'", null, null);
+    	} catch (Exception e) {
+    		mResponse.errorId = Response.ERROR_CACHE_QUERY;
+    	}
     	if (cursor.getCount() > 0) {
     		cursor.moveToFirst();
     		mResponse.reset();
@@ -353,6 +490,7 @@ public class ProxyService extends Service {
     	} else {
     		mResponse.reset();
     		mResponse.requestId = requestId;
+    		mResponse.errorId = Response.ERROR_NOT_EXIST_IN_CACHE;
     	}
     	cursor.close();
     	return mResponse;

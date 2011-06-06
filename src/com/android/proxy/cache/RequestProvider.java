@@ -32,6 +32,10 @@ public class RequestProvider extends ContentProvider {
     public static final String BODY = "body";
     public static final String TIME = "time";
     public static final String RESPONSE = "response";
+    public static final String TYPE = "type";
+    
+    public static final int TYPE_PUSHMESSAGE = 1;
+    public static final int TYPE_OTHERS = 2;
     
     public static final int NO_RESPONSE = -1;
     
@@ -53,7 +57,7 @@ public class RequestProvider extends ContentProvider {
     private static final String DATABASE_CREATE = "create table " + DATABASE_TABLE + " (" + _ID 
     								+ " integer primary key autoincrement, " + OWNER + " text, "
     								+ ACTION + " integer, " + ITEMS + " text, " + VERSION_ID + " text, "
-    								+ BODY + " text, " + TIME + " long,"
+    								+ BODY + " text, " + TIME + " long," + TYPE + " integer, "
     								+ RESPONSE + " integer);";
     
     private static class DatabaseHelper extends SQLiteOpenHelper {

@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -41,9 +42,14 @@ public class WarnProvider extends ContentProvider {
     public static final String TITLE = "title";
     public static final String EVENT_ID = "event_id";
     
+    private static final long MAX_ROWS = 10000;
+    private static final long DELETE_NUMBER = 100;
+    private static final String pref_warn_db_count = "WARN_DB_COUNT";
+    
     private static final int WARNS = 1;
     private static final int WARN_ID = 2;
     private static UriMatcher uriMatcher;
+    private long mCount;
     
     static{  
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);  
@@ -119,6 +125,7 @@ public class WarnProvider extends ContentProvider {
            default: throw new IllegalArgumentException("Unknown URI " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        mCount = mCount - count;
         return count;
     }
 
@@ -146,6 +153,8 @@ public class WarnProvider extends ContentProvider {
             if (mListener != null) {
             	mListener.onInsert(_uri);
             }
+            mCount++;
+            if (mCount > MAX_ROWS) deleteRecords(DELETE_NUMBER);
             return _uri;
         }
 
@@ -159,6 +168,7 @@ public class WarnProvider extends ContentProvider {
         DatabaseHelper dbHelper = new DatabaseHelper(context);  
         mWarnsDB = dbHelper.getWritableDatabase();  
         setListner(WarnManager.getInstance(getContext()).warnObserver);
+        mCount = PreferenceManager.getDefaultSharedPreferences(context).getLong(pref_warn_db_count, 0);
         return (mWarnsDB == null)? false:true;
     }
 
@@ -202,6 +212,12 @@ public class WarnProvider extends ContentProvider {
         	mListener.afterUpdate();
         }
         return count;
+    }
+    
+    private void deleteRecords(long n) {
+    	mWarnsDB.execSQL("delete from " + DATABASE_TABLE + " where _ID in (select _ID from " 
+    			+ DATABASE_TABLE + " order by _ID asc limit 0, " + (n-1) + "); ");
+    	mCount = mCount - n >= 0 ? mCount - n : 0;
     }
     
     private static void LOGD(String text) {
