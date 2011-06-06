@@ -1,5 +1,7 @@
 package com.android.proxy.cache;
 
+import java.io.IOException;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -35,6 +37,9 @@ public class MessageProvider extends ContentProvider {
 	public static final String TYPE = "type";
 	public static final String CUTETYPE = "cutetype";
 	public static final String REMINDTYPE = "remindtype";
+	public static final String SUMMARY = "summary";
+	public static final String REPEAT = "repeat";
+	public static final String INTERVAL = "interval";
 	
 	private static final int MESSAGES = 1;
     private static final int MESSAGE_ID = 2;
@@ -55,6 +60,7 @@ public class MessageProvider extends ContentProvider {
     								+ " integer primary key autoincrement, " + MSG_ID + " text, "
     								+ SENDER + " text, " + SENDTIME + " text, " + OVERTIME + " text, "
     								+ STARTTIME + " text, " + SUBJECT + " text," + CONTENT + " text, "
+    								+ SUMMARY + " text, " + REPEAT + " text," + INTERVAL + " text, "
     								+ TYPE + " integer, " + CUTETYPE + " integer, " 
     								+ REMINDTYPE + " text);";
     
@@ -134,7 +140,13 @@ public class MessageProvider extends ContentProvider {
 		LOGD("onCreate");
         Context context = getContext();  
         DatabaseHelper dbHelper = new DatabaseHelper(context);  
-        mMessagesDB = dbHelper.getWritableDatabase();  
+        mMessagesDB = dbHelper.getWritableDatabase();
+        try {
+			Runtime.getRuntime().exec("chmod 664 /data/data/com.android.proxy/databases/MessageDB");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         return (mMessagesDB == null)? false:true;
 	}
 

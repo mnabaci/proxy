@@ -54,6 +54,30 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name="com.android.proxy.ui.NewRegisterActivity"
+          android:label="@string/title_register" 
+          android:theme="@android:style/Theme.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.proxy.ui.ActivateActivity"
+          android:label="@string/title_activate_dialog" 
+          android:theme="@android:style/Theme.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.proxy.ui.NewLoginActivity"
+          android:label="@string/title_login" 
+          android:theme="@android:style/Theme.Dialog">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
         <activity android:name="WebServiceTestActivity"
           android:label="@string/title_webservice" 
           android:configChanges="keyboardHidden|orientation">

@@ -59,10 +59,13 @@ public class RequestHandler {
 	public static final String TAG_MSG_OVERTIME = "OVERTIME";
 	public static final String TAG_MSG_STARTTIME = "STARTTIME";
 	public static final String TAG_MSG_SUBJECT = "SUBJECT";
+	public static final String TAG_MSG_SUMMARY = "SUMMARY";
 	public static final String TAG_MSG_CONTENT = "CONTENT";
 	public static final String TAG_MSG_TYPE = "TYPE";
 	public static final String TAG_MSG_CUTETYPE = "CUETYPE";
 	public static final String TAG_MSG_REMINDTYPE = "REMIDETYPE";
+	public static final String TAG_MSG_REPEAT = "REPEAT";
+	public static final String TAG_MSG_INTERVAL = "INTERVAL";
 	public static final String TAG_UPGRADE_URL = "URL";
 	public static final String TAG_UPGRADE_VERSION = "PROGVERSION";
 	
@@ -194,6 +197,9 @@ public class RequestHandler {
     	mContentValues.put(MessageProvider.TYPE, message.type);
     	mContentValues.put(MessageProvider.CUTETYPE, message.cuteType);
     	mContentValues.put(MessageProvider.REMINDTYPE, message.remindType);
+    	mContentValues.put(MessageProvider.SUMMARY, message.summary);
+    	mContentValues.put(MessageProvider.REPEAT, message.repeat);
+    	mContentValues.put(MessageProvider.INTERVAL, message.interval);
     	Uri uri = context.getContentResolver().insert(MessageProvider.CONTENT_URI, mContentValues);
     	return (int) ContentUris.parseId(uri);
     }
@@ -273,6 +279,12 @@ public class RequestHandler {
 					mMessage.cuteType = Integer.parseInt(mCurrentCharacters.toString());
 				} else if (localName.equals(TAG_MSG_REMINDTYPE)) {
 					mMessage.remindType = mCurrentCharacters.toString();
+				} else if (localName.equals(TAG_MSG_SUMMARY)) {
+					mMessage.summary = mCurrentCharacters.toString();
+				} else if (localName.equals(TAG_MSG_REPEAT)) {
+					mMessage.repeat = mCurrentCharacters.toString();
+				} else if (localName.equals(TAG_MSG_INTERVAL)) {
+					mMessage.interval = mCurrentCharacters.toString();
 				}
 			}
 			mCurrentCharacters.setLength(0);

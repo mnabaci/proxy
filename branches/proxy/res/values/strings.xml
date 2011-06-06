@@ -8,6 +8,12 @@
     <string name="button_close">关闭</string>
     <string name="btn_login">登录</string>
     <string name="btn_register">注册</string>
+    <string name="btn_register_new">同意并使用</string>
+    <string name="btn_known">知道了</string>
+    <string name="btn_reset_email">重置邮件地址</string>
+    <string name="btn_agree_use">同意并使用</string>
+    <string name="btn_update">开始同步</string>
+    <string name="btn_reset_pwd">重置密码</string>
     
     <string name="cancel">取消</string>
     
@@ -28,6 +34,37 @@
     <string name="txt_btn_view_messages">查看Messages</string>
     <string name="txt_remember_password">记住密码</string>
     <string name="txt_netword_disable">无法连接网络：请确认您的wifi3G已经打开</string>
+    <string name="txt_register1">请输入一个有效的电子邮件地址,作为使用本设备的唯一可信帐号。</string>
+    <string name="txt_register2">使用此帐号，您将可以通过电子邮件维护您的个人信息，获得设备厂商的技术支持，下载最新的免费程序，更新升级最新固件，以及用于更广泛的用途。</string>
+    <string name="txt_register3">电子邮件地址：</string>
+    <string name="txt_register4">为保护您的权益，请确保以上地址正确，且是您的可用电子邮件。</string>
+    <string name="txt_register5">为保护您的隐私，如您时间允许，请仔细阅读以下隐私保护信息。</string>
+    <string name="txt_register6">了解我们的隐私政策的详细信息。</string>
+    
+    <string name="txt_activate1">系统向您提供的电子邮件地址********@***.***，发送了一篇主题为“云客设备验证”的邮件。</string>
+    <string name="txt_activate2">您可以通过本设备的浏览器，或其他方式，登录该邮箱查阅，激活该帐号并设置密码。</string>
+    <string name="txt_activate3">激活后，您可以在此后合适的时间里，点击各功能项下“同步”按钮进行同步。</string>
+    
+    <string name="txt_wrongaddress1">输入有误。</string>
+    <string name="txt_wrongaddress2">请输入一个有效的电子邮件地址，作为使用本设备的唯一可信帐号。</string>
+    <string name="txt_wrongaddress3">电子邮件地址：</string>
+    <string name="txt_wrongaddress4">为保护您的权益，请确保以上地址正确，且是您的可用电子邮件。</string>
+    <string name="txt_wrongaddress5">为保护您的隐私，如您时间允许，请仔细阅读以下隐私保护信息。</string>
+    <string name="txt_wrongaddress6">了解我们的隐私政策的详细信息。</string>
+    
+    <string name="txt_login1">系统已向您的电子邮件地址xxxxxx@xxx.xxx，发送了一封主题为“云客密码重置”的邮件。</string>
+    <string name="txt_login2">请您重新输入您的密码。</string>
+    <string name="txt_login3">帐 号：</string>
+    <string name="txt_login4">密 码：</string>
+    <string name="txt_login5">自动记住密码</string>
+    
+    <string name="txt_wrong_pwd1">输入有误。</string>
+    <string name="txt_wrong_pwd2">您可以重置您的密码，系统将向您的电子邮件地址******@***.***，发送了一封主题为“云客密码重置”的邮件。</string>
+    <string name="txt_wrong_pwd3">重置您的密码</string>
+    <string name="txt_wrong_pwd4">请在下方输入正确的密码：</string>
+    <string name="txt_wrong_pwd5">帐 号：</string>
+    <string name="txt_wrong_pwd6">密 码：</string>
+    <string name="txt_wrong_pwd7">自动记住密码</string>
     
     <string name="title_login">登录</string>
     <string name="title_register">注册</string>
@@ -36,6 +73,11 @@
     <string name="title_request_activity">RequestActivity</string>
     <string name="title_response_activity">ResponseActivity</string>
     <string name="title_message_activity">MessageActivity</string>
+    <string name="title_register_dialog">可信帐号</string>
+    <string name="title_activate_dialog">激活提示</string>
+    <string name="title_wrongaddress_dialog">地址有误</string>
+    <string name="title_wrong_password">密码有误</string>
+    <string name="title_reset_password">密码重置</string>
     
     <string name="empty"></string>
 </resources>

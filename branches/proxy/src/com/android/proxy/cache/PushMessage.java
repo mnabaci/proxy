@@ -12,10 +12,13 @@ public class PushMessage {
 	public String overTime;
 	public String startTime;
 	public String subject;
+	public String summary;
 	public String content;
 	public int type;
 	public int cuteType;
 	public String remindType;
+	public String repeat;
+	public String interval;
 	
 	public void print() {
 		Log.d("PushMessage", "pushMessageId=" + pushMessageId + "; sender=" + sender + ";sendTime="

@@ -6,16 +6,29 @@ import android.os.Parcelable;
 public class Response implements Parcelable {
 	
 	public static final int REAL_RESPONSE = -1;
+	public static final int ERROR_RESPONSE = -2;
+	
+	public static final String ERROR_PARAMETER_PROBLEM = "B001";
+	public static final String ERROR_WEBSERVICE_ERROR = "B002";
+	public static final String ERROR_LOGIN = "B004";
+	public static final String ERROR_QUEUE_QUERY = "B005";
+	public static final String ERROR_XML_ERROR = "B007";
+	public static final String ERROR_UNKNOWN_BEFORE_INTERNET = "B000";
+	public static final String ERROR_CACHE_QUERY = "B100";
+	public static final String ERROR_NOT_EXIST_IN_CACHE = "B101";
+	public static final String ERROR_UNKNOWN_AFTER_INTERNET = "A000";
 	
 	public String packageName;
 	public int requestId;
 	public long time;
 	public String body;
+	public String errorId;
+	public String errorMessage;
 	
 	public Response() {
 		
 	}
-	
+
 	public void reset() {
 		packageName = null;
 		requestId = REAL_RESPONSE;
