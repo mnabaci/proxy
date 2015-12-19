@@ -1,0 +1,1 @@
+a proxy for application communicating with cloud server
